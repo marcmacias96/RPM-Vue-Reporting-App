@@ -14,6 +14,7 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+import { createProvider } from './vue-apollo'
 
 /**
  * If you don't want to use mock-server
@@ -39,5 +40,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  apolloProvider: createProvider(),
   render: h => h(App)
 })

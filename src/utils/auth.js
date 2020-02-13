@@ -1,7 +1,7 @@
 const TokenKey = 'apollo-token'
 
 export function getToken() {
-  return localStorage.getItem()
+  return localStorage.getItem(TokenKey)
 }
 
 export function setToken(token) {

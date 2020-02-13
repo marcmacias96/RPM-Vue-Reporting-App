@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+// eslint-disable-next-line
+import auth from '../auth0/authService'
 
 Vue.use(Router)
 
@@ -170,7 +172,13 @@ const createRouter = () => new Router({
 })
 
 const router = createRouter()
-
+/*
+router.beforeEach((to, from, next) => {
+  if (to.path === '/' || to.path === '/callback' || auth.isAuthenticated()) {
+    return next()
+  }
+  auth.login({ target: to.path })
+})*/
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()

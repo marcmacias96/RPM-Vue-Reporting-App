@@ -11,11 +11,13 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
+import AuthPlugin from './auth0/auth'
 
 import '@/icons' // icon
 import '@/permission' // permission control
 import { createProvider } from './vue-apollo'
 
+Vue.use(AuthPlugin)
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

@@ -1,18 +1,22 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">name: {{ name }}</div>
+    <div class="dashboard-text">name: {{ profile.name }}</div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
+  data() {
+    return {
+      profile: this.$auth.profile
+    }
+  },
+  methods: {
+    handleLoginEvent(data) {
+      this.profile = data.profile
+    }
   }
 }
 </script>

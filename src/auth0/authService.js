@@ -2,6 +2,7 @@
 import auth0 from "auth0-js";
 import { EventEmitter } from "events";
 import authConfig from "../../auth_config.json";
+import { onLogout } from '../vue-apollo'
 
 const webAuth = new auth0.WebAuth({
   domain: authConfig.domain,
@@ -10,6 +11,7 @@ const webAuth = new auth0.WebAuth({
   responseType: "token id_token",
   scope: "openid profile"
 });
+
 
 const localStorageKey = "loggedIn";
 const loginEvent = "loginEvent";
@@ -26,7 +28,6 @@ class AuthService extends EventEmitter {
 
   logOut() {
     localStorage.removeItem(localStorageKey);
-
     this.idToken = null;
     this.tokenExpiry = null;
     this.profile = null;
@@ -41,6 +42,7 @@ class AuthService extends EventEmitter {
   handleAuthentication() {
     return new Promise((resolve, reject) => {
       webAuth.parseHash((err, authResult) => {
+        console.log(authResult)
         if (err) {
           reject(err);
         } else {

@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 // eslint-disable-next-line
 import auth from '../auth0/authService'
-
 Vue.use(Router)
 
 /* Layout */
@@ -162,23 +161,29 @@ export const constantRoutes = [
   },
 
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true },
+  {
+    path: '/callback',
+    component: () => import('@/components/auth/Callback.vue'),
+    hidden: true
+  }
 ]
 
 const createRouter = () => new Router({
+  mode: 'history',
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })
 
 const router = createRouter()
-/*
+
 router.beforeEach((to, from, next) => {
-  if (to.path === '/' || to.path === '/callback' || auth.isAuthenticated()) {
+  if (to.path === '/login' || to.path === '/callback' || auth.isAuthenticated()) {
     return next()
   }
   auth.login({ target: to.path })
-})*/
+})
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()

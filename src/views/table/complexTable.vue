@@ -10,14 +10,43 @@
         align="right"
         value-format="yyyy-MM-dd HH:mm:ss"
       />
-      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
+      <el-input
+        v-model="listQuery.title"
+        placeholder="Title"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-select
+        v-model="listQuery.sort"
+        style="width: 140px"
+        class="filter-item"
+        @change="handleFilter"
+      >
+        <el-option
+          v-for="item in sortOptions"
+          :key="item.key"
+          :label="item.label"
+          :value="item.key"
+        />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >
         Search
       </el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >
         Export
       </el-button>
     </div>
@@ -33,58 +62,63 @@
       @sort-change="sortChange"
     >
       <el-table-column label="NombreHistorico" min-width="150px">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <span>{{ row.DscaTipoTramite }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Cantidad" width="110px" align="center">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <span>{{ row.Cantidad }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Monto" width="110px" align="center">
-        <template slot-scope="{row}">
+        <template slot-scope="{ row }">
           <span>{{ formatPrice(row.Monto) }}</span>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
-
+    <pagination
+      v-show="total > 0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
   </div>
 </template>
 
 <script>
-import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import { tiposTramite } from './querys/tiposTramite'
+import waves from "@/directive/waves"; // waves directive
+import { parseTime } from "@/utils";
+import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
+import { tiposTramite } from "./querys/tiposTramite";
 const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
+  { key: "CN", display_name: "China" },
+  { key: "US", display_name: "USA" },
+  { key: "JP", display_name: "Japan" },
+  { key: "EU", display_name: "Eurozone" }
+];
 // arr to obj, such as { CN : "China", US : "USA" }
 const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
+  acc[cur.key] = cur.display_name;
+  return acc;
+}, {});
 export default {
-  name: 'ComplexTable',
+  name: "ComplexTable",
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
-      }
-      return statusMap[status]
+        published: "success",
+        draft: "info",
+        deleted: "danger"
+      };
+      return statusMap[status];
     },
     typeFilter(type) {
-      return calendarTypeKeyValue[type]
+      return calendarTypeKeyValue[type];
     }
   },
   data() {
@@ -99,38 +133,52 @@ export default {
         importance: undefined,
         title: undefined,
         type: undefined,
-        sort: '+id',
+        sort: "+id",
         fechas: null
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['published', 'draft', 'deleted'],
+      sortOptions: [
+        { label: "ID Ascending", key: "+id" },
+        { label: "ID Descending", key: "-id" }
+      ],
+      statusOptions: ["published", "draft", "deleted"],
       showReviewer: false,
       temp: {
         id: undefined,
         importance: 1,
-        remark: '',
+        remark: "",
         timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
+        title: "",
+        type: "",
+        status: "published"
       },
       dialogFormVisible: false,
-      dialogStatus: '',
+      dialogStatus: "",
       textMap: {
-        update: 'Edit',
-        create: 'Create'
+        update: "Edit",
+        create: "Create"
       },
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        type: [
+          { required: true, message: "type is required", trigger: "change" }
+        ],
+        timestamp: [
+          {
+            type: "date",
+            required: true,
+            message: "timestamp is required",
+            trigger: "change"
+          }
+        ],
+        title: [
+          { required: true, message: "title is required", trigger: "blur" }
+        ]
       },
       downloadLoading: false
-    }
+    };
   },
   methods: {
     getMore() {
@@ -139,121 +187,125 @@ export default {
           fechaInicio: this.listQuery.fechas[0],
           fechaFin: this.listQuery.fechas[1]
         }
-      })
+      });
     },
     getList() {
-      this.rep_tiposTramite = this.getList()
-      this.total = this.tiposTramite.length
+      this.rep_tiposTramite = this.getList();
+      this.total = this.tiposTramite.length;
     },
     handleFilter() {
       if (this.listQuery.fechas != null) {
-        console.log(this.listQuery.fechas[0])
-        this.listQuery.page = 1
-        this.$apollo.query({
-          query: tiposTramite,
-          variables: {
-            fechaInicio: this.listQuery.fechas[0].toString(),
-            fechaFin: this.listQuery.fechas[1].toString()
-          },
-          error(error) {
-            this.error = JSON.stringify(error.message)
-          }
-        }).then(data => {
-          console.log(data)
-          this.rep_tiposTramite = data.data.rep_tiposTramite
-        })
+        console.log(this.listQuery.fechas[0]);
+        this.listQuery.page = 1;
+        this.$apollo
+          .query({
+            query: tiposTramite,
+            variables: {
+              fechaInicio: this.listQuery.fechas[0].toString(),
+              fechaFin: this.listQuery.fechas[1].toString()
+            },
+            error(error) {
+              this.error = JSON.stringify(error.message);
+            }
+          })
+          .then(data => {
+            console.log(data);
+            this.rep_tiposTramite = data.data.rep_tiposTramite;
+          });
       }
     },
     handleModifyStatus(row, status) {
       this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
+        message: "操作Success",
+        type: "success"
+      });
+      row.status = status;
     },
     sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      const { prop, order } = data;
+      if (prop === "id") {
+        this.sortByID(order);
       }
     },
     sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+      if (order === "ascending") {
+        this.listQuery.sort = "+id";
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.sort = "-id";
       }
-      this.handleFilter()
+      this.handleFilter();
     },
     resetTemp() {
       this.temp = {
         id: undefined,
         importance: 1,
-        remark: '',
+        remark: "",
         timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
+        title: "",
+        status: "published",
+        type: ""
+      };
     },
     handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
+      this.resetTemp();
+      this.dialogStatus = "create";
+      this.dialogFormVisible = true;
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+        this.$refs["dataForm"].clearValidate();
+      });
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
+      this.temp = Object.assign({}, row); // copy obj
+      this.temp.timestamp = new Date(this.temp.timestamp);
+      this.dialogStatus = "update";
+      this.dialogFormVisible = true;
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+        this.$refs["dataForm"].clearValidate();
+      });
     },
     handleDelete(row, index) {
       this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
+        title: "Success",
+        message: "Delete Successfully",
+        type: "success",
         duration: 2000
-      })
-      this.rep_tiposTramite.splice(index, 1)
+      });
+      this.rep_tiposTramite.splice(index, 1);
     },
     handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal)
+      this.downloadLoading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = ["Tipo de trámite", "Cantidad", "Monto"];
+        const filterVal = ["DscaTipoTramite", "Cantidad", "Monto"];
+        const data = this.formatJson(filterVal);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
+          filename: "Reporte-tramites"
+        });
+        this.downloadLoading = false;
+      });
     },
     formatJson(filterVal) {
-      console.log('hola')
-      return this.rep_tiposTramite.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
+      console.log("hola");
+      return this.rep_tiposTramite.map(v =>
+        filterVal.map(j => {
+          if (j === "timestamp") {
+            return parseTime(v[j]);
+          } else {
+            return v[j];
+          }
+        })
+      );
     },
     formatPrice(value) {
-      var val = (value / 1).toFixed(2).replace('.', ',')
-      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+      var val = (value / 1).toFixed(2).replace(".", ",");
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
     getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
+      const sort = this.listQuery.sort;
+      return sort === `+${key}` ? "ascending" : "descending";
     }
   }
-}
+};
 </script>

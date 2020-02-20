@@ -9,7 +9,7 @@
         start-placeholder="Start date"
         end-placeholder="End date"
         align="right"
-        value-format="timestamp"
+        value-format="yyyy-MM-dd HH:mm:ss"
       />
       <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
@@ -141,7 +141,8 @@ export default {
     getMore() {
       this.apollo.querys.tiposTramite.fetchMore({
         variables: {
-    
+          fechaInicio: this.listQuery.fechas[0],
+          fechaFin: this.listQuery.fechas[1]
         }
       })
     },
@@ -241,7 +242,7 @@ export default {
     }
   },
   apollo: {
-    getList () {
+    getList() {
       return {
         query: tiposTramite,
         variables() {

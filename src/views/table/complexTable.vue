@@ -4,7 +4,6 @@
       <el-date-picker
         v-model="listQuery.fechas"
         type="datetimerange"
-        :picker-options="pickerOptions"
         range-separator="To"
         start-placeholder="Start date"
         end-placeholder="End date"
@@ -133,10 +132,6 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
-    this.rep_tiposTramite = this.getList()
-    this.total = this.tiposTramite.length
-  },
   methods: {
     getMore() {
       this.apollo.querys.tiposTramite.fetchMore({
@@ -146,9 +141,28 @@ export default {
         }
       })
     },
+    getList() {
+      this.rep_tiposTramite = this.getList()
+      this.total = this.tiposTramite.length
+    },
     handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
+      if (this.listQuery.fechas != null) {
+        console.log(this.listQuery.fechas[0])
+        this.listQuery.page = 1
+        this.$apollo.query({
+          query: tiposTramite,
+          variables: {
+            fechaInicio: this.listQuery.fechas[0].toString(),
+            fechaFin: this.listQuery.fechas[1].toString()
+          },
+          error(error) {
+            this.error = JSON.stringify(error.message)
+          }
+        }).then(data => {
+          console.log(data)
+          this.rep_tiposTramite = data.data.rep_tiposTramite
+        })
+      }
     },
     handleModifyStatus(row, status) {
       this.$message({
@@ -239,23 +253,6 @@ export default {
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
-    }
-  },
-  apollo: {
-    getList() {
-      return {
-        query: tiposTramite,
-        variables() {
-          return {
-            fechaInicio: this.listQuery.fechas[0],
-            fechaFin: this.listQuery.fechas[1]
-          }
-        },
-        error(error) {
-          this.error = JSON.stringify(error.message)
-        },
-        fetchPolicy: 'cache-and-network'
-      }
     }
   }
 }

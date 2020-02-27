@@ -33,19 +33,18 @@
         Export
       </el-button>
     </div>
-    <el-container>
-      <el-header>Cabecera</el-header>
-      <el-main>
-        <el-row :gutter="32">
-          <el-col :xs="24" :sm="24" :lg="8">
-            <div class="chart-wrapper">
-              <pie-chart :chart-data="pieChartData" />
-            </div>
-          </el-col>
-        </el-row>
-      </el-main>
-      <el-footer>Pie de página</el-footer>
-    </el-container>
+    <el-row :gutter="32">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <div class="chart-wrapper">
+          <pie-chart :chart-data="pieChartData" />
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="8">
+        <div class="chart-wrapper">
+          <bar-chart :chart-data="barChartData" />
+        </div>
+      </el-col>
+    </el-row>
     <el-table
       :key="tableKey"
       v-loading="$apollo.loading"
@@ -115,6 +114,7 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { tramitesUsuario } from './querys/listOfQuerys'
 import PieChart from './Components/PieChart'
+import BarChart from './Components/BarChart'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -124,7 +124,8 @@ const calendarTypeOptions = [
 export default {
   name: 'ComplexTable',
   components: {
-    PieChart
+    PieChart,
+    BarChart
   },
   directives: { waves },
   filters: {
@@ -140,6 +141,7 @@ export default {
   data() {
     return {
       pieChartData: null,
+      barChartData: null,
       tableKey: 0,
       rep_tramitesUsuario: null,
       total: 0,
@@ -210,6 +212,18 @@ export default {
         }).then(data => {
           this.rep_tramitesUsuario = data.data.rep_departamento
           this.pieChartData = this.rep_tramitesUsuario[this.rep_tramitesUsuario.length - 1]
+          var mostrar = {}
+          var nombres = []
+          var totales = []
+          this.rep_tramitesUsuario.forEach(tramites => {
+            if (tramites.Nombre !== 'Total') {
+              nombres.push(tramites.Nombre)
+              totales.push(tramites.Total)
+            }
+          })
+          mostrar.nombres = nombres
+          mostrar.totales = totales
+          this.barChartData = mostrar
         })
       }
     },

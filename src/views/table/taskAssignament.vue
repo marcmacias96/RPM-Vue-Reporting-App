@@ -33,7 +33,19 @@
         Export
       </el-button>
     </div>
-
+    <el-container>
+      <el-header>Cabecera</el-header>
+      <el-main>
+        <el-row :gutter="32">
+          <el-col :xs="24" :sm="24" :lg="8">
+            <div class="chart-wrapper">
+              <pie-chart :chart-data="pieChartData" />
+            </div>
+          </el-col>
+        </el-row>
+      </el-main>
+      <el-footer>Pie de página</el-footer>
+    </el-container>
     <el-table
       :key="tableKey"
       v-loading="$apollo.loading"
@@ -95,13 +107,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart :chart-data="pieChartData" />
-        </div>
-      </el-col>
-    </el-row>
   </div>
 </template>
 
@@ -304,22 +309,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.dashboard-editor-container {
-  padding: 32px;
-  background-color: rgb(240, 242, 245);
-  position: relative;
-  .github-corner {
-    position: absolute;
-    top: 0px;
-    border: 0;
-    right: 0;
-  }
-  .chart-wrapper {
+.chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
     margin-bottom: 32px;
   }
-}
 @media (max-width:1024px) {
   .chart-wrapper {
     padding: 8px;

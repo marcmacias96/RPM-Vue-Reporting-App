@@ -64,11 +64,11 @@ export default {
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          data: ['Completado', 'No Iniciado', 'En proceso', 'Por Firmar', 'Anulado']
         },
         series: [
           {
-            name: 'WEEKLY WRITE ARTICLES',
+            name: 'Tramites',
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],

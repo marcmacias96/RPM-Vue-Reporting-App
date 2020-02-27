@@ -80,6 +80,12 @@ export const constantRoutes = [
         name: 'ComplexTable',
         component: () => import('@/views/table/complexTable'),
         meta: { title: 'Reporte de tramites', icon: 'table' }
+      },
+      {
+        path: 'taskAssignament',
+        name: 'TaskAssignament',
+        component: () => import('@/views/table/taskAssignament'),
+        meta: { title: 'Reporte Asignación de Tareas', icon: 'table' }
       }
     ]
   },

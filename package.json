@@ -17,6 +17,7 @@
     "auth0": "^2.22.0",
     "auth0-js": "^9.12.2",
     "axios": "0.18.1",
+    "echarts": "^4.6.0",
     "element-ui": "2.13.0",
     "file-saver": "^2.0.2",
     "jquery": "^3.4.1",

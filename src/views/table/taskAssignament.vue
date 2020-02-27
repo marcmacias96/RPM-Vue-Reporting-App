@@ -1,6 +1,9 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <el-select v-model="listQuery.type" style="width: 140px" class="filter-item">
+        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
+      </el-select>
       <el-date-picker
         v-model="listQuery.fechas"
         type="datetimerange"
@@ -10,7 +13,6 @@
         align="right"
         value-format="yyyy-MM-dd HH:mm:ss"
       />
-      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button
         v-waves
         class="filter-item"
@@ -35,49 +37,90 @@
     <el-table
       :key="tableKey"
       v-loading="$apollo.loading"
-      :data="rep_tiposTramite"
+      :data="rep_tramitesUsuario"
       border
       fit
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Tipo de trámite" min-width="150px">
+      <el-table-column label="Nombre" min-width="150px">
         <template slot-scope="{ row }">
-          <span>{{ row.DscaTipoTramite }}</span>
+          <span>{{ row.Nombre }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Cantidad" width="110px" align="center">
+      <el-table-column label="No Iniciado" width="100px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ row.Cantidad }}</span>
+          <span>{{ row.noIniciado }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Monto" width="110px" align="center">
+      <el-table-column label="Revisión jurídico" width="150px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ formatPrice(row.Monto) }}</span>
+          <span>{{ row.revisionJuridico }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="R.J Completado" width="150px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.revisionJuridicoCompletado }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="En proceso" width="100px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.enProceso }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Por firmar" width="90px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.porFirmar }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Completado" width="105px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.Completados }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Pendiente" width="90px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.Pendiente }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Anulado" width="90px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.Anulado }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Total" width="90px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.Total }}</span>
         </template>
       </el-table-column>
     </el-table>
+    <el-row :gutter="32">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <div class="chart-wrapper">
+          <pie-chart />
+        </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramite } from './querys/listOfQuerys'
+import { tramitesUsuario } from './querys/listOfQuerys'
+import PieChart from './Components/PieChart'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
   { key: 'JP', display_name: 'Japan' },
   { key: 'EU', display_name: 'Eurozone' }
 ]
-// arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
 export default {
   name: 'ComplexTable',
+  components: {
+    PieChart
+  },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -87,29 +130,27 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
-    },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
     }
   },
   data() {
     return {
+      pieCharData: null,
       tableKey: 0,
-      rep_tiposTramite: null,
+      rep_tramitesUsuario: null,
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 20,
         importance: undefined,
-        title: '',
-        type: undefined,
+        name: '',
+        type: '',
         sort: '',
         fechas: null
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: 'asc' }, { label: 'ID Descending', key: 'desc' }],
+      sortOptions: [{ label: 'Certificados', key: 'Certificados' }, { label: 'Inscripciones', key: 'Inscripciones' }, { label: 'Juridico', key: 'Juridico' }, { label: 'Tram en Linea', key: 'TRAMITE EN LINEA' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
@@ -152,18 +193,19 @@ export default {
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.$apollo.query({
-          query: tiposTramite,
+          query: tramitesUsuario,
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
             fechaFin: this.listQuery.fechas[1].toString(),
-            title: this.listQuery.title,
-            order: 'asc'
+            departamento: this.listQuery.type
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.rep_tiposTramite = data.data.rep_tiposTramite
+          console.log(data)
+          this.rep_tramitesUsuario = data.data.rep_departamento
+          this.pieCharData = this.rep_tramitesUsuario[this.rep_tramitesUsuario.length - 1]
         })
       }
     },
@@ -228,20 +270,20 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'Monto']
+        const tHeader = ['Nombre', 'No Iniciado', 'Revisión Jurídica', 'Revisión Juridíca Completada', 'En Proceso', 'Por Firmar', 'Completado', 'Pendiente', 'Anulado', 'Total']
+        const filterVal = ['Nombre', 'noIniciado', 'revisionJuridico', 'revisionJuridicoCompletado', 'enProceso', 'porFirmar', 'Completados', 'Pendiente', 'Anulado', 'Total']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'Reporte-tramites'
+          filename: 'Reporte-tramites-asignados'
         })
         this.downloadLoading = false
       })
     },
     formatJson(filterVal) {
       console.log('hola')
-      return this.rep_tiposTramite.map(v =>
+      return this.rep_tramitesUsuario.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])
@@ -262,3 +304,26 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.dashboard-editor-container {
+  padding: 32px;
+  background-color: rgb(240, 242, 245);
+  position: relative;
+  .github-corner {
+    position: absolute;
+    top: 0px;
+    border: 0;
+    right: 0;
+  }
+  .chart-wrapper {
+    background: #fff;
+    padding: 16px 16px 0;
+    margin-bottom: 32px;
+  }
+}
+@media (max-width:1024px) {
+  .chart-wrapper {
+    padding: 8px;
+  }
+}
+</style>

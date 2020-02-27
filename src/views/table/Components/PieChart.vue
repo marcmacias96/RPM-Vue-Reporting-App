@@ -20,11 +20,23 @@ export default {
     height: {
       type: String,
       default: '300px'
+    },
+    chartData: {
+      type: Object,
+      default: null
     }
   },
   data() {
     return {
       chart: null
+    }
+  },
+  watch: {
+    chartData: {
+      deep: true,
+      handler(val) {
+        this.setOptions(val)
+      }
     }
   },
   mounted() {
@@ -42,6 +54,8 @@ export default {
   methods: {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
+    },
+    setOptions(Data) {
       this.chart.setOption({
         tooltip: {
           trigger: 'item',
@@ -59,15 +73,18 @@ export default {
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [32, 22, 55, 98],
+            data: [
+              { value: Data.Completados, name: 'Completado' },
+              { value: Data.noIniciado, name: 'No Iniciado' },
+              { value: Data.enProceso, name: 'En proceso' },
+              { value: Data.porFirmar, name: 'Por Firmar' },
+              { value: Data.Anulado, name: 'Anulado' }
+            ],
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }
         ]
       })
-    },
-    hell() {
-      console.log('hola')
     }
   }
 }

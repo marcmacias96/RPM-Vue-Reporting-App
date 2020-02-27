@@ -98,7 +98,7 @@
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart :chart-data="pieChartData" />
         </div>
       </el-col>
     </el-row>
@@ -134,7 +134,7 @@ export default {
   },
   data() {
     return {
-      pieCharData: null,
+      pieChartData: null,
       tableKey: 0,
       rep_tramitesUsuario: null,
       total: 0,
@@ -203,9 +203,8 @@ export default {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          console.log(data)
           this.rep_tramitesUsuario = data.data.rep_departamento
-          this.pieCharData = this.rep_tramitesUsuario[this.rep_tramitesUsuario.length - 1]
+          this.pieChartData = this.rep_tramitesUsuario[this.rep_tramitesUsuario.length - 1]
         })
       }
     },

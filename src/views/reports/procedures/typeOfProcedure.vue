@@ -1,18 +1,28 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-select v-model="listQuery.type" style="width: 140px" class="filter-item">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select>
       <el-date-picker
         v-model="listQuery.fechas"
         type="datetimerange"
-        range-separator="A"
+        range-separator="-"
         start-placeholder="Fecha Inicio"
         end-placeholder="Fecha Fin"
         align="right"
         value-format="yyyy-MM-dd HH:mm:ss"
       />
+      <el-select
+        v-model="selected"
+        multiple
+        collapse-tags
+        placeholder="Tramites"
+      >
+        <el-option
+          v-for="item in listaTramites"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
       <el-button
         v-waves
         class="filter-item"
@@ -33,76 +43,31 @@
         Export
       </el-button>
     </div>
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart :chart-data="pieChartData" />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart :chart-data="barChartData" />
-        </div>
-      </el-col>
-    </el-row>
+
     <el-table
       :key="tableKey"
       v-loading="$apollo.loading"
-      :data="rep_tramitesUsuario"
+      :data="rep_tramitesFilter"
       border
       fit
+      height="600"
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Nombre" min-width="150px">
+      <el-table-column label="Tipo de trámite" min-width="150px">
         <template slot-scope="{ row }">
-          <span>{{ row.Nombre }}</span>
+          <span>{{ row.DscaTipoTramite }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="No Iniciado" width="100px" align="center">
+      <el-table-column label="Cantidad" width="110px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ row.noIniciado }}</span>
+          <span>{{ row.Cantidad }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Revisión jurídico" width="150px" align="center">
+      <el-table-column label="Monto" width="110px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ row.revisionJuridico }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="R.J Completado" width="150px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.revisionJuridicoCompletado }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="En proceso" width="100px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.enProceso }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Por firmar" width="90px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.porFirmar }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Completado" width="105px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Completados }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Pendiente" width="90px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Pendiente }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Anulado" width="90px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Anulado }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Total" width="90px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Total }}</span>
+          <span>{{ formatPrice(row.AmountInvoiced) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -112,21 +77,20 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tramitesUsuario } from './querys/listOfQuerys'
-import PieChart from './Components/PieChart'
-import BarChart from './Components/BarChart'
+import { listaTramites, tiposTramiteFilt } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
   { key: 'JP', display_name: 'Japan' },
   { key: 'EU', display_name: 'Eurozone' }
 ]
+// arr to obj, such as { CN : "China", US : "USA" }
+const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+  acc[cur.key] = cur.display_name
+  return acc
+}, {})
 export default {
   name: 'ComplexTable',
-  components: {
-    PieChart,
-    BarChart
-  },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -136,28 +100,29 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
+    },
+    typeFilter(type) {
+      return calendarTypeKeyValue[type]
     }
   },
   data() {
     return {
-      pieChartData: null,
-      barChartData: null,
       tableKey: 0,
-      rep_tramitesUsuario: null,
+      selected: [],
+      rep_tramitesFilter: null,
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 20,
         importance: undefined,
-        name: '',
-        type: '',
+        title: '',
+        type: undefined,
         sort: '',
         fechas: null
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      sortOptions: [{ label: 'Certificados', key: 'Certificados' }, { label: 'Inscripciones', key: 'Inscripciones' }, { label: 'Juridico', key: 'Juridico' }, { label: 'Tram en Linea', key: 'TRAMITE EN LINEA' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
@@ -200,30 +165,33 @@ export default {
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.$apollo.query({
-          query: tramitesUsuario,
+          query: tiposTramiteFilt,
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
             fechaFin: this.listQuery.fechas[1].toString(),
-            departamento: this.listQuery.type
+            title: this.selected
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.rep_tramitesUsuario = data.data.rep_departamento
-          this.pieChartData = this.rep_tramitesUsuario[this.rep_tramitesUsuario.length - 1]
-          var mostrar = {}
-          var nombres = []
-          var totales = []
-          this.rep_tramitesUsuario.forEach(tramites => {
-            if (tramites.Nombre !== 'Total') {
-              nombres.push(tramites.Nombre)
-              totales.push(tramites.Total)
+          this.rep_tramitesFilter = []
+          var total = {
+            Cantidad: 0,
+            AmountInvoiced: 0,
+            DscaTipoTramite: 'TOTAL'
+          }
+          data.data.TipoTramite.forEach(tramite => {
+            var aux = {
+              DscaTipoTramite: tramite.DscaTipoTramite,
+              Cantidad: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad,
+              AmountInvoiced: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
             }
+            this.rep_tramitesFilter.push(aux)
+            total.Cantidad += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad
+            total.AmountInvoiced += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
           })
-          mostrar.nombres = nombres
-          mostrar.totales = totales
-          this.barChartData = mostrar
+          this.rep_tramitesFilter.push(total)
         })
       }
     },
@@ -288,20 +256,19 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Nombre', 'No Iniciado', 'Revisión Jurídica', 'Revisión Juridíca Completada', 'En Proceso', 'Por Firmar', 'Completado', 'Pendiente', 'Anulado', 'Total']
-        const filterVal = ['Nombre', 'noIniciado', 'revisionJuridico', 'revisionJuridicoCompletado', 'enProceso', 'porFirmar', 'Completados', 'Pendiente', 'Anulado', 'Total']
+        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
+        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'Reporte-tramites-asignados'
+          filename: 'Reporte-tramites-filtrados'
         })
         this.downloadLoading = false
       })
     },
     formatJson(filterVal) {
-      console.log('hola')
-      return this.rep_tramitesUsuario.map(v =>
+      return this.rep_tramitesFilter.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])
@@ -319,18 +286,11 @@ export default {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }
+  },
+  apollo: {
+    listaTramites: {
+      query: listaTramites
+    }
   }
 }
 </script>
-<style lang="scss" scoped>
-.chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
-  }
-@media (max-width:1024px) {
-  .chart-wrapper {
-    padding: 8px;
-  }
-}
-</style>

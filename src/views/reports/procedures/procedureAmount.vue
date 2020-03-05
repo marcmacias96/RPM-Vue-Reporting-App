@@ -4,7 +4,7 @@
       <el-date-picker
         v-model="listQuery.fechas"
         type="datetimerange"
-        range-separator="A"
+        range-separator="-"
         start-placeholder="Fecha Inicio"
         end-placeholder="Fecha Fin"
         align="right"
@@ -38,6 +38,7 @@
       :data="rep_tiposTramite"
       border
       fit
+      height="600"
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
@@ -54,7 +55,7 @@
       </el-table-column>
       <el-table-column label="Monto" width="110px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ formatPrice(row.Monto) }}</span>
+          <span>{{ formatPrice( row.AmountInvoiced) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -64,7 +65,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramite } from './querys/listOfQuerys'
+import { tiposTramite } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -151,19 +152,35 @@ export default {
   methods: {
     handleFilter() {
       if (this.listQuery.fechas != null) {
+        var nombre = '%' + this.listQuery.title + '%'
         this.$apollo.query({
           query: tiposTramite,
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
             fechaFin: this.listQuery.fechas[1].toString(),
-            title: this.listQuery.title,
-            order: 'asc'
+            title: nombre
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.rep_tiposTramite = data.data.rep_tiposTramite
+          this.rep_tiposTramite = []
+          var total = {
+            Cantidad: 0,
+            AmountInvoiced: 0,
+            DscaTipoTramite: 'TOTAL'
+          }
+          data.data.TipoTramite.forEach(tramite => {
+            var aux = {
+              DscaTipoTramite: tramite.DscaTipoTramite,
+              Cantidad: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad,
+              AmountInvoiced: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
+            }
+            this.rep_tiposTramite.push(aux)
+            total.Cantidad += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad
+            total.AmountInvoiced += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
+          })
+          this.rep_tiposTramite.push(total)
         })
       }
     },
@@ -229,7 +246,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'Monto']
+        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,

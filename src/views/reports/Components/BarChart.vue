@@ -6,6 +6,9 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
+
+const animationDuration = 6000
+
 export default {
   mixins: [resize],
   props: {
@@ -15,7 +18,7 @@ export default {
     },
     width: {
       type: String,
-      default: '100%'
+      default: '300%'
     },
     height: {
       type: String,
@@ -58,32 +61,40 @@ export default {
     setOptions(Data) {
       this.chart.setOption({
         tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
-        },
-        legend: {
-          left: 'center',
-          bottom: '10',
-          data: ['Completado', 'No Iniciado', 'En proceso', 'Por Firmar', 'Anulado']
-        },
-        series: [
-          {
-            name: 'Tramites',
-            type: 'pie',
-            roseType: 'radius',
-            radius: [15, 95],
-            center: ['50%', '38%'],
-            data: [
-              { value: Data.Completados, name: 'Completado' },
-              { value: Data.noIniciado, name: 'No Iniciado' },
-              { value: Data.enProceso, name: 'En proceso' },
-              { value: Data.porFirmar, name: 'Por Firmar' },
-              { value: Data.Anulado, name: 'Anulado' }
-            ],
-            animationEasing: 'cubicInOut',
-            animationDuration: 2600
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
           }
-        ]
+        },
+        grid: {
+          top: 10,
+          left: '2%',
+          right: '2%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: [{
+          type: 'category',
+          data: Data.nombres,
+          show: false,
+          axisTick: {
+            alignWithLabel: true
+          }
+        }],
+        yAxis: [{
+          type: 'value',
+          axisTick: {
+            show: false
+          }
+        }],
+        series: {
+          name: 'Total por usuario',
+          type: 'bar',
+          stack: 'vistors',
+          barWidth: '80%',
+          data: Data.totales,
+          animationDuration
+        }
       })
     }
   }

@@ -25,7 +25,7 @@ export default {
       default: '300px'
     },
     chartData: {
-      type: Object,
+      type: Array,
       default: null
     }
   },
@@ -38,6 +38,7 @@ export default {
     chartData: {
       deep: true,
       handler(val) {
+        console.log(val)
         this.setOptions(val)
       }
     }
@@ -75,7 +76,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: Data.nombres,
+          data: ['Total'],
           show: false,
           axisTick: {
             alignWithLabel: true
@@ -87,14 +88,14 @@ export default {
             show: false
           }
         }],
-        series: [{
-          name: 'Total por usuario',
+        series: {
+          name: 'Total',
           type: 'bar',
           stack: 'vistors',
-          barWidth: '80%',
-          data: Data.totales,
+          barWidth: '100%',
+          data: Data,
           animationDuration
-        }]
+        }
       })
     }
   }

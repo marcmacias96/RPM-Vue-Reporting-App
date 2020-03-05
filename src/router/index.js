@@ -57,110 +57,74 @@ export const constantRoutes = [
   },
 
   {
-    path: '/example',
+    path: '/reportes',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/reports/table',
+    name: 'Reportes',
+    meta: { title: 'Reportes', icon: 'example' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      },
-      {
-        path: 'complexTable',
-        name: 'ComplexTable',
-        component: () => import('@/views/table/complexTable'),
-        meta: { title: 'Reporte de tramites', icon: 'table' }
-      },
-      {
-        path: 'taskAssignament',
-        name: 'TaskAssignament',
-        component: () => import('@/views/table/taskAssignament'),
-        meta: { title: 'Reporte Asignación de Tareas', icon: 'table' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
+        path: 'servicios',
+        name: 'servicios',
+        component: () => import('@/views/reports/services/index'),
+        meta: { title: 'Tipo de Servicio', icon: 'table' },
         children: [
           {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
+            path: 'servicesAndStatus',
+            name: 'servicesAndStatus',
+            component: () => import('@/views/reports/services/servicesAndStatus'),
+            meta: { title: 'Servicios x Estado', icon: 'table' }
           }
         ]
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
+        path: 'tramites',
+        name: 'tramites',
+        component: () => import('@/views/reports/procedures/index'),
+        meta: { title: 'Tipo de Trámite', icon: 'table' },
+        children: [
+          {
+            path: 'complexTable',
+            name: 'ComplexTable',
+            component: () => import('@/views/reports/procedures/procedureAmount'),
+            meta: { title: 'Recaudación x tramite', icon: 'table' }
+          },
+          {
+            path: 'typeOfProcedure',
+            name: 'TypeOfProcedure',
+            component: () => import('@/views/reports/procedures/typeOfProcedure'),
+            meta: { title: 'Rec x Tramite Filtro', icon: 'table' }
+          },
+          {
+            path: 'proceduresAndStatus',
+            name: 'proceduresAndStatus',
+            component: () => import('@/views/reports/procedures/proceduresAndStatus'),
+            meta: { title: 'Tramites x Estado', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'orders',
+        name: 'orders',
+        component: () => import('@/views/reports/orders/index'),
+        meta: { title: 'Órdenes de Trabajo', icon: 'table' },
+        children: [
+          {
+            path: 'taskAssignamentRealTime',
+            name: 'taskAssignamentRealTime',
+            component: () => import('@/views/reports/orders/taskAssignamentRT'),
+            meta: { title: 'Asignación de Tareas T.R', icon: 'table' }
+          },
+          {
+            path: 'ordersAssignamentRealTime',
+            name: 'ordersAssignamentRealTime',
+            component: () => import('@/views/reports/orders/ordersAssignamentRT'),
+            meta: { title: 'Asignación de Ordenes T.R', icon: 'table' }
+          }
+        ]
       }
     ]
   },
-
   {
     path: 'external-link',
     component: Layout,

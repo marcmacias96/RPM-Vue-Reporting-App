@@ -20,130 +20,116 @@
         Search
       </el-button>
     </div>
-    <el-row :gutter="5">
-      <el-col>
-        <el-container>
-          <el-main>
-            <el-table
-              :key="tableKey"
-              v-loading="$apollo.loading"
-              :data="listaServicios"
-              border
-              fit
-              height="600"
-              highlight-current-row
-              style="width: 100%;"
-              @sort-change="sortChange"
-            >
-              <el-table-column>
-                <template slot="header">
-                  <span>Total Recaudado por Servicio</span>
-                </template>
-                <el-table-column type="expand">
-                  <template slot-scope="props">
-                    <el-table
-                      :data="props.row.Usuarios"
-                      style="width: 50%"
-                    >
-                      <el-table-column
-                        label="Usuarios"
-                        min-width="150px"
-                        prop="Nombre"
-                      />
-                      <el-table-column
-                        label="Cantidad"
-                        width="120px"
-                        prop="Cantidad"
-                        align="center"
-                      />
-                      <el-table-column
-                        label="Detalles"
-                        width="100px"
-                        align="center"
-                      >
-                        <template slot-scope="{row}">
-                          <el-button type="primary" size="mini" @click="getUserList(row)">
-                            Listar
-                          </el-button>
-                        </template>
-                      </el-table-column>
-                    </el-table>
+    <div class="table-container">
+      <el-table
+        :key="tableKey"
+        v-loading="$apollo.loading"
+        :data="listaServicios"
+        border
+        fit
+        height="600"
+        highlight-current-row
+        style="width: 100%;"
+        @sort-change="sortChange"
+      >
+        <el-table-column align="right">
+          <template slot="header">
+            <span class="total-text">Total Recaudado </span>
+            <el-button
+              v-waves
+              class="total-container"
+              type="info"
+            > $ {{ total }} </el-button>
+          </template>
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-table
+                :data="props.row.Usuarios"
+                style="width: 50%"
+              >
+                <el-table-column
+                  label="Usuarios"
+                  min-width="150px"
+                  prop="Nombre"
+                />
+                <el-table-column
+                  label="Cantidad"
+                  width="120px"
+                  prop="Cantidad"
+                  align="center"
+                />
+                <el-table-column
+                  label="Detalles"
+                  width="100px"
+                  align="center"
+                >
+                  <template slot-scope="{row}">
+                    <el-button type="primary" size="mini" @click="getUserList(row)">
+                      Listar
+                    </el-button>
                   </template>
                 </el-table-column>
-                <el-table-column label="Tipo Servicios" min-width="150px">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Nombre }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Creación" width="90px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Creacion }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Abierta" width="70px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Abierta }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Por Cobrar" width="110px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.porCobrar }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Pagada" width="80px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Pagada }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Anulada" width="80px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Anulada }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="En Proceso" width="105px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.enProceso }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Lista Entrega" width="110px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.paraEntrega }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Finalizada" width="90px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Finalizada }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Cantidad" width="90px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ row.Total }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column label="Total Recaudado" width="140px" align="center">
-                  <template slot-scope="{ row }">
-                    <span>{{ formatPrice(row.totalRecaudado) }}</span>
-                  </template>
-                </el-table-column>
-              </el-table-column>
-            </el-table></el-main>
-        </el-container>
-      </el-col></el-row>
-    <el-row>
-      <el-col :span="8">
-        <el-container>
-          <el-main>
-            <el-row :gutter="0">
-              <el-col :offset="3" :xs="24" :sm="24" :lg="8">
-                <div class="chart-wrapper">
-                  <bar-chart :chart-data="barChartData" />
-                </div>
-              </el-col>
-            </el-row>
-          </el-main>
-        </el-container>
-      </el-col>
-    </el-row>
+              </el-table>
+            </template>
+          </el-table-column>
+          <el-table-column label="Tipo Servicios" min-width="150px">
+            <template slot-scope="{ row }">
+              <span>{{ row.Nombre }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Creación" width="90px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Creacion }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Abierta" width="70px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Abierta }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Por Cobrar" width="110px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.porCobrar }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Pagada" width="80px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Pagada }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Anulada" width="80px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Anulada }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="En Proceso" width="105px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.enProceso }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Lista Entrega" width="110px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.paraEntrega }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Finalizada" width="90px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Finalizada }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Cantidad" width="90px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.Total }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Total Recaudado" width="140px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ formatPrice(row.totalRecaudado) }}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+      </el-table>
+    </div>
     <el-dialog :visible.sync="dialogTableVisible" width="90%" center>
       <el-row type="flex" justify="center">
         <span>{{ userName }}</span>
@@ -280,7 +266,6 @@
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { tiposServicios, listaDetallesServAndStat } from '../querys/listOfQuerys'
-import BarChart from '../Components/BarChartArray'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -294,9 +279,6 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 }, {})
 export default {
   name: 'ComplexTable',
-  components: {
-    BarChart
-  },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -511,6 +493,18 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.table-container div {
+  margin-top: 10px
+}
+
+.total-container {
+ margin-left: 40px;
+}
+
+.total-text {
+  font-size: 20px;
+}
+
 .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
@@ -522,3 +516,4 @@ export default {
   }
 }
 </style>
+

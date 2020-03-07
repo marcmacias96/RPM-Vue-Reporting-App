@@ -12,6 +12,7 @@
       />
       <el-select
         v-model="selected"
+        style="width:500px;"
         multiple
         collapse-tags
         placeholder="Tramites"
@@ -59,9 +60,14 @@
               style="width: 100%;"
               @sort-change="sortChange"
             >
-              <el-table-column>
+              <el-table-column align="right">
                 <template slot="header">
-                  <span>Total Recaudado por Tramite</span>
+                  <span class="total-text">Total Recaudado </span>
+                  <el-button
+                    v-waves
+                    class="total-container"
+                    type="info"
+                  > $ {{ total }} </el-button>
                 </template>
                 <el-table-column label="Tipo Tramite" min-width="150px">
                   <template slot-scope="{ row }">
@@ -365,6 +371,9 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.total-text {
+  font-size: 20px;
+}
 .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;

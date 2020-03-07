@@ -32,87 +32,98 @@
       >
         Search
       </el-button>
-      <span> Total : {{ monto }} </span>
     </div>
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="rep_comprobantes"
-      border
-      fit
-      height="550"
-      highlight-current-row
-      style="width: 100%;"
-    >
-      <el-table-column
-        label="Comprobante"
-        width="150px"
-        prop="ProformaFactura.NroFactura"
-        align="center"
-      />
-      <el-table-column
-        label="Fecha-Hora"
-        width="120px"
-        prop="ProformaFactura.FacturadoEn"
-        align="center"
-      />
-      <el-table-column
-        label="Cedula"
-        width="130px"
-        prop="ProformaFactura.clienteByCliente.CedRuc"
-        align="center"
-      />
-      <el-table-column
-        label="Contribuyente"
-        min-width="200px"
+    <div class="table-container">
+      <el-table
+        :key="tableKey"
+        v-loading="listLoading"
+        :data="rep_comprobantes"
+        border
+        fit
+        height="550"
+        highlight-current-row
+        style="width: 100%;"
       >
-        <template slot-scope="{ row }">
-          <span>{{ row.ProformaFactura.clienteByCliente.Nombres }}</span>
-          <span>{{ row.ProformaFactura.clienteByCliente.Apellidos }}</span>
-          <span>{{ row.ProformaFactura.clienteByCliente.NombreEmpresa }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="Creado Por"
-        min-width="200px"
-      >
-        <template slot-scope="{ row }">
-          <span>{{ row.ProformaFactura.usuarioByCreadopor.Nombres }}</span>
-          <span>{{ row.ProformaFactura.usuarioByCreadopor.Apellidos }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="Cantidad"
-        width="90px"
-        prop="CantidadFactura"
-        align="center"
-      />
-      <el-table-column
-        label="Descuento"
-        width="100px"
-        prop="Dscto"
-        align="center"
-      />
-      <el-table-column
-        label="Valor Unitario"
-        width="120px"
-        prop="ValorUnitario"
-        align="center"
-      />
-      <el-table-column
-        label="IVA"
-        width="90px"
-        prop="Impuesto"
-        align="center"
-      />
-      <el-table-column
-        label="Total"
-        width="90px"
-        prop="Total"
-        align="center"
-      />
-    </el-table>
-    <pagination v-show="listQuery.total>0" :total="listQuery.total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleFilter" />
+        <el-table-column align="right">
+          <template slot="header">
+            <span class="total-text">Total Recaudado </span>
+            <el-button
+              v-waves
+              class="total-container"
+              type="info"
+            > $ {{ total }} </el-button>
+          </template>
+          <el-table-column
+            label="Comprobante"
+            width="150px"
+            prop="ProformaFactura.NroFactura"
+            align="center"
+          />
+          <el-table-column
+            label="Fecha-Hora"
+            width="120px"
+            prop="ProformaFactura.FacturadoEn"
+            align="center"
+          />
+          <el-table-column
+            label="Cedula"
+            width="130px"
+            prop="ProformaFactura.clienteByCliente.CedRuc"
+            align="center"
+          />
+          <el-table-column
+            label="Contribuyente"
+            min-width="200px"
+          >
+            <template slot-scope="{ row }">
+              <span>{{ row.ProformaFactura.clienteByCliente.Nombres }}</span>
+              <span>{{ row.ProformaFactura.clienteByCliente.Apellidos }}</span>
+              <span>{{ row.ProformaFactura.clienteByCliente.NombreEmpresa }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="Creado Por"
+            min-width="200px"
+          >
+            <template slot-scope="{ row }">
+              <span>{{ row.ProformaFactura.usuarioByCreadopor.Nombres }}</span>
+              <span>{{ row.ProformaFactura.usuarioByCreadopor.Apellidos }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="Cantidad"
+            width="90px"
+            prop="CantidadFactura"
+            align="center"
+          />
+          <el-table-column
+            label="Descuento"
+            width="100px"
+            prop="Dscto"
+            align="center"
+          />
+          <el-table-column
+            label="Valor Unitario"
+            width="120px"
+            prop="ValorUnitario"
+            align="center"
+          />
+          <el-table-column
+            label="IVA"
+            width="90px"
+            prop="Impuesto"
+            align="center"
+          />
+          <el-table-column
+            label="Total"
+            width="90px"
+            prop="Total"
+            align="center"
+          />
+        </el-table-column>
+      </el-table>
+      <pagination v-show="listQuery.total>0" :total="listQuery.total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleFilter" />
+    </div>
   </div>
 </template>
 
@@ -333,3 +344,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.table-container div {
+  margin-top: 10px;
+}
+.total-text {
+  font-size: 20px;
+}
+
+</style>

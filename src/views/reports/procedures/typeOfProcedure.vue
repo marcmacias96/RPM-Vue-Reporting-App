@@ -12,6 +12,7 @@
       />
       <el-select
         v-model="selected"
+        style="width:500px;"
         multiple
         collapse-tags
         placeholder="Tramites"
@@ -46,29 +47,40 @@
 
     <el-table
       :key="tableKey"
-      v-loading="$apollo.loading"
+      v-loading="false"
       :data="rep_tramitesFilter"
       border
       fit
+      class="table-container"
       height="600"
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Tipo de trámite" min-width="150px">
-        <template slot-scope="{ row }">
-          <span>{{ row.DscaTipoTramite }}</span>
+      <el-table-column align="right">
+        <template slot="header">
+          <span class="total-text">Total Recaudado </span>
+          <el-button
+            v-waves
+            class="total-container"
+            type="info"
+          > $ {{ total }} </el-button>
         </template>
-      </el-table-column>
-      <el-table-column label="Cantidad" width="110px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Cantidad }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Monto" width="110px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ formatPrice(row.AmountInvoiced) }}</span>
-        </template>
+        <el-table-column label="Tipo de trámite" min-width="150px">
+          <template slot-scope="{ row }">
+            <span>{{ row.DscaTipoTramite }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Cantidad" width="110px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Cantidad }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Monto" width="110px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ formatPrice(row.AmountInvoiced) }}</span>
+          </template>
+        </el-table-column>
       </el-table-column>
     </el-table>
   </div>
@@ -294,3 +306,13 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.total-text {
+  font-size: 20px;
+}
+.table-container {
+ margin-top: 10px;
+}
+
+</style>

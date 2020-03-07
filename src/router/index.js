@@ -67,13 +67,13 @@ export const constantRoutes = [
         path: 'servicios',
         name: 'servicios',
         component: () => import('@/views/reports/services/index'),
-        meta: { title: 'Tipo de Servicio', icon: 'table' },
+        meta: { title: 'Recaudación x Servicio', icon: 'table' },
         children: [
           {
             path: 'servicesAndStatus',
             name: 'servicesAndStatus',
             component: () => import('@/views/reports/services/servicesAndStatus'),
-            meta: { title: 'Servicios x Estado', icon: 'table' }
+            meta: { title: 'Recaudación x Servicio', icon: 'table' }
           }
         ]
       },
@@ -81,11 +81,11 @@ export const constantRoutes = [
         path: 'tramites',
         name: 'tramites',
         component: () => import('@/views/reports/procedures/index'),
-        meta: { title: 'Tipo de Trámite', icon: 'table' },
+        meta: { title: 'Recaudación x Tramite', icon: 'table' },
         children: [
           {
-            path: 'complexTable',
-            name: 'ComplexTable',
+            path: 'procedureAmount',
+            name: 'procedureAmount',
             component: () => import('@/views/reports/procedures/procedureAmount'),
             meta: { title: 'Recaudación x tramite', icon: 'table' }
           },
@@ -120,6 +120,20 @@ export const constantRoutes = [
             name: 'ordersAssignamentRealTime',
             component: () => import('@/views/reports/orders/ordersAssignamentRT'),
             meta: { title: 'Asignación de Ordenes T.R', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'invoice',
+        name: 'invoice',
+        component: () => import('@/views/reports/invoice/index'),
+        meta: { title: 'Recaudación x Comprobante', icon: 'table' },
+        children: [
+          {
+            path: 'invoiceBalnce',
+            name: 'invoiceBalnce',
+            component: () => import('@/views/reports/invoice/invoiceBalance'),
+            meta: { title: 'Recaudación x Comprobante', icon: 'table' }
           }
         ]
       }

@@ -50,6 +50,31 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-table
+            :data="props.row.tipoServicios"
+            style="width: 50%"
+          >
+            <el-table-column
+              label="Servicios"
+              min-width="150px"
+              prop="TipoServicio.TpServicio"
+            />
+            <el-table-column
+              label="Detalles"
+              width="100px"
+              align="center"
+            >
+              <template slot-scope="{row}">
+                <el-button type="primary" size="mini" @click="getDetailList(props, row)">
+                  Listar
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </template>
+      </el-table-column>
       <el-table-column label="Nombre" min-width="150px">
         <template slot-scope="{ row }">
           <span>{{ row.Apellidos }}</span>
@@ -102,13 +127,142 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :visible.sync="dialogTableVisible" width="90%" center>
+      <el-row type="flex" justify="center">
+        <span>{{ userName }}</span>
+      </el-row>
+      <el-table
+        :data="listaDetalles"
+        height="450"
+        style="width: 100%"
+      >
+        <el-table-column
+          label="Tipo Servicio"
+          width="150px"
+          prop="OrdenTrabajo_Detalle.TipoServicio.TpServicio"
+        />
+        <el-table-column
+          label="Tipo Tramite"
+          width="150px"
+          prop="OrdenTrabajo_Detalle.TipoTramite.DscaTipoTramite"
+        />
+        <el-table-column
+          label="Nro Orden"
+          width="130px"
+          prop="OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.NroOrden"
+        />
+        <el-table-column
+          label="Cantidad"
+          width="100px"
+          prop="OrdenTrabajo_Detalle.Cantidad"
+          align="center"
+        />
+        <el-table-column
+          label="Monto"
+          width="100px"
+          prop="OrdenTrabajo_Detalle.AmountInvoiced"
+          align="center"
+        />
+        <el-table-column
+          label="Est Orden"
+          width="100px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ ordersStatus[row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.Estado] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Est Tarea"
+          width="150px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ tasksStatus[row.OrdenTrabajo_Detalle.StatusOT] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Creación"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.CreadoEn }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Inscripción"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.FechaInscripcion }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Estimada E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.FechaEstimadaEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F.Pospuesta E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.FechaPospuestaEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Real Ent"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.FechaRealEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Finalización"
+          width="160px"
+          prop="OrdenTrabajo_Detalle.Usuario_OTs[0].FechaFinalizacion"
+        />
+        <el-table-column
+          label="Avaluo"
+          width="100px"
+          prop="OrdenTrabajo_Detalle.Avaluo"
+          align="center"
+        />
+        <el-table-column
+          label="Creado por"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.usuarioByCreadopor.Nombres }}</span>
+            <span>{{ row.OrdenTrabajo_Detalle.usuarioByCreadopor.Apellidos }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Fojas Adc"
+          width="100px"
+          prop="OrdenTrabajo_Detalle.FojasAdc"
+          align="center"
+        />
+        <el-table-column
+          label="Factura Cli"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombres }}</span>
+            <span>{{ row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { usuarioTaksStatusByDep } from '../querys/listOfQuerys'
+import { usuarioTaksStatusByDep, listaDetallesTaskAsig } from '../querys/listOfQuerys'
 import { usuarioTaksStatusByDepSub } from '../querys/listOfSubs'
 import BarChart from '../Components/BarChart'
 const calendarTypeOptions = [
@@ -135,6 +289,30 @@ export default {
   },
   data() {
     return {
+      ordersStatus: [
+        'Creación',
+        'Abierta',
+        'Por Cobrar',
+        'Pagada',
+        'Anulada',
+        'En Proceso',
+        'Para Entrega',
+        'Finalizada'
+      ],
+      tasksStatus: [
+        'No Iniciado',
+        'Rev Jurídico',
+        'Rev Jurídico C',
+        'En Proceso',
+        'Por Firmar',
+        'Completado',
+        'Pendiente',
+        'Anulado'
+      ],
+      userName: '',
+      dialogTableVisible: false,
+      userCedula: '',
+      listaDetalles: [],
       barChartData: null,
       tableKey: 0,
       rep_tramitesUsuario: null,
@@ -194,6 +372,25 @@ export default {
     this.$apollo.subscriptions.addtram.skip = true
   },
   methods: {
+    getDetailList(rowP, rowCh) {
+      this.userName = rowP.row.Nombres + rowP.row.Apellidos
+      this.dialogTableVisible = true
+      this.$apollo.query({
+        query: listaDetallesTaskAsig,
+        variables: {
+          cedula: rowP.row.Cedula,
+          fechaInicio: this.listQuery.fechas[0].toString(),
+          fechaFin: this.listQuery.fechas[1].toString(),
+          tipoServicio: rowCh.TipoServicio.Codigo
+        },
+        error(error) {
+          this.error = JSON.stringify(error.message)
+        }
+      }).then(data => {
+        this.listaDetalles = data.data.Usuario[0].usuarioOtsByIduserasignado
+        console.log(this.listaDetalles)
+      })
+    },
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.$apollo.subscriptions.addtram.start()
@@ -215,6 +412,7 @@ export default {
           data.data.Usuario.forEach(tramites => {
             var aux = {
               Nombres: tramites.Apellidos + ' ' + tramites.Nombres,
+              Cedula: tramites.Cedula,
               noIniciado: tramites.noIniciado.aggregate.count,
               revJud: tramites.revJud.aggregate.count,
               revJudComp: tramites.revJudComp.aggregate.count,
@@ -223,7 +421,8 @@ export default {
               Completado: tramites.completado.aggregate.count,
               Pendiente: tramites.pendiente.aggregate.count,
               Anulado: tramites.anulado.aggregate.count,
-              Total: tramites.total.aggregate.count
+              Total: tramites.total.aggregate.count,
+              tipoServicios: tramites.Usuario_TipoServicios
             }
             mostrar.nombres.push(tramites.Apellidos + ' ' + tramites.Nombres)
             mostrar.totales.push(tramites.total.aggregate.count)

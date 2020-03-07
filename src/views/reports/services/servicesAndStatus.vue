@@ -19,16 +19,6 @@
       >
         Search
       </el-button>
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        class="filter-item"
-        type="primary"
-        icon="el-icon-download"
-        @click="handleDownload"
-      >
-        Export
-      </el-button>
     </div>
     <el-row :gutter="5">
       <el-col>
@@ -50,11 +40,34 @@
                   <span>Total Recaudado por Servicio</span>
                 </template>
                 <el-table-column type="expand">
-                  <template>
-                    <p>Estado: </p>
-                    <p>Ciudad: </p>
-                    <p>Dirección: </p>
-                    <p>Código postal: </p>
+                  <template slot-scope="props">
+                    <el-table
+                      :data="props.row.Usuarios"
+                      style="width: 50%"
+                    >
+                      <el-table-column
+                        label="Usuarios"
+                        min-width="150px"
+                        prop="Nombre"
+                      />
+                      <el-table-column
+                        label="Cantidad"
+                        width="120px"
+                        prop="Cantidad"
+                        align="center"
+                      />
+                      <el-table-column
+                        label="Detalles"
+                        width="100px"
+                        align="center"
+                      >
+                        <template slot-scope="{row}">
+                          <el-button type="primary" size="mini" @click="getUserList(row)">
+                            Listar
+                          </el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
                   </template>
                 </el-table-column>
                 <el-table-column label="Tipo Servicios" min-width="150px">
@@ -131,13 +144,142 @@
         </el-container>
       </el-col>
     </el-row>
+    <el-dialog :visible.sync="dialogTableVisible" width="90%" center>
+      <el-row type="flex" justify="center">
+        <span>{{ userName }}</span>
+      </el-row>
+      <el-table
+        :data="listaDetalles"
+        height="450"
+        style="width: 100%"
+      >
+        <el-table-column
+          label="Tipo Servicio"
+          width="150px"
+          prop="TipoServicio.TpServicio"
+        />
+        <el-table-column
+          label="Tipo Tramite"
+          width="150px"
+          prop="TipoTramite.DscaTipoTramite"
+        />
+        <el-table-column
+          label="Nro Orden"
+          width="130px"
+          prop="OrdenTrabajo_Cabecera.NroOrden"
+        />
+        <el-table-column
+          label="Cantidad"
+          width="100px"
+          prop="Cantidad"
+          align="center"
+        />
+        <el-table-column
+          label="Monto"
+          width="100px"
+          prop="AmountInvoiced"
+          align="center"
+        />
+        <el-table-column
+          label="Est Orden"
+          width="100px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ ordersStatus[row.OrdenTrabajo_Cabecera.Estado] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Est Tarea"
+          width="150px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ tasksStatus[row.StatusOT] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Creación"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.CreadoEn }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Inscripción"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaInscripcion }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Estimada E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaEstimadaEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F.Pospuesta E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaPospuestaEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Real Ent"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaRealEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Finalización"
+          width="160px"
+          prop="Usuario_OTs[0].FechaFinalizacion"
+        />
+        <el-table-column
+          label="Avaluo"
+          width="100px"
+          prop="Avaluo"
+          align="center"
+        />
+        <el-table-column
+          label="Creado por"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.usuarioByCreadopor.Nombres }}</span>
+            <span>{{ row.usuarioByCreadopor.Apellidos }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Fojas Adc"
+          width="100px"
+          prop="FojasAdc"
+          align="center"
+        />
+        <el-table-column
+          label="Factura Cli"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombres }}</span>
+            <span>{{ row.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposServicios } from '../querys/listOfQuerys'
+import { tiposServicios, listaDetallesServAndStat } from '../querys/listOfQuerys'
 import BarChart from '../Components/BarChartArray'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -171,8 +313,31 @@ export default {
   },
   data() {
     return {
+      userName: '',
+      ordersStatus: [
+        'Creación',
+        'Abierta',
+        'Por Cobrar',
+        'Pagada',
+        'Anulada',
+        'En Proceso',
+        'Para Entrega',
+        'Finalizada'
+      ],
+      tasksStatus: [
+        'No Iniciado',
+        'Rev Jurídico',
+        'Rev Jurídico C',
+        'En Proceso',
+        'Por Firmar',
+        'Completado',
+        'Pendiente',
+        'Anulado'
+      ],
+      dialogTableVisible: false,
       tableKey: 0,
       totRecaudado: '',
+      listaDetalles: [],
       listaServicios: [],
       barChartData: null,
       rep_servicio: null,
@@ -229,6 +394,21 @@ export default {
     }
   },
   methods: {
+    getUserList(row) {
+      this.userName = row.Nombre
+      this.dialogTableVisible = true
+      this.$apollo.query({
+        query: listaDetallesServAndStat,
+        variables: {
+          orders: row.OID
+        },
+        error(error) {
+          this.error = JSON.stringify(error.message)
+        }
+      }).then(data => {
+        this.listaDetalles = data.data.OrdenTrabajo_Detalle
+      })
+    },
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.$apollo.query({
@@ -241,48 +421,7 @@ export default {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.listaServicios = []
-          this.rep_servicio = data.data.TipoServicio
-          var total = {
-            Nombre: 'TOTAL',
-            Creacion: 0,
-            Abierta: 0,
-            porCobrar: 0,
-            Pagada: 0,
-            Anulada: 0,
-            enProceso: 0,
-            paraEntrega: 0,
-            Finalizada: 0,
-            Total: 0,
-            totalRecaudado: 0
-          }
-          this.rep_servicio.forEach(servicio => {
-            var aux = {
-              Nombre: servicio.TpServicio,
-              Creacion: servicio.creacion.aggregate.sum.Cantidad == null ? 0 : servicio.creacion.aggregate.sum.Cantidad,
-              Abierta: servicio.abierta.aggregate.sum.Cantidad == null ? 0 : servicio.abierta.aggregate.sum.Cantidad,
-              porCobrar: servicio.porCobrar.aggregate.sum.Cantidad == null ? 0 : servicio.porCobrar.aggregate.sum.Cantidad,
-              Pagada: servicio.pagada.aggregate.sum.Cantidad == null ? 0 : servicio.pagada.aggregate.sum.Cantidad,
-              Anulada: servicio.anulada.aggregate.sum.Cantidad == null ? 0 : servicio.anulada.aggregate.sum.Cantidad,
-              enProceso: servicio.enProceso.aggregate.sum.Cantidad == null ? 0 : servicio.enProceso.aggregate.sum.Cantidad,
-              paraEntrega: servicio.paraEntrega.aggregate.sum.Cantidad == null ? 0 : servicio.paraEntrega.aggregate.sum.Cantidad,
-              Finalizada: servicio.finalizada.aggregate.sum.Cantidad == null ? 0 : servicio.finalizada.aggregate.sum.Cantidad,
-              Total: servicio.total.aggregate.sum.Cantidad == null ? 0 : servicio.total.aggregate.sum.Cantidad,
-              totalRecaudado: servicio.total.aggregate.sum.AmountInvoiced == null ? 0 : servicio.total.aggregate.sum.AmountInvoiced
-            }
-            total.Creacion += aux.Creacion
-            total.Abierta += aux.Abierta
-            total.porCobrar += aux.porCobrar
-            total.Pagada += aux.Pagada
-            total.Anulada += aux.Anulada
-            total.enProceso += aux.enProceso
-            total.paraEntrega += aux.paraEntrega
-            total.Finalizada += aux.Finalizada
-            total.Total += aux.Total
-            total.totalRecaudado += aux.totalRecaudado
-            this.listaServicios.push(aux)
-          })
-          this.listaServicios.push(total)
+          this.listaServicios = data.data.rep_tiposServicios
         })
       }
     },

@@ -1,5 +1,5 @@
 <template>
-  <el-tabs :v-model="departamento" tab-position="right" style="height: 500px;">
+  <el-tabs stretch :v-model="departamento" tab-position="right" style="height: 500px;">
     <el-tab-pane label="Certificados">
       <div class="chart-container">
         <chart height="100%" width="100%" :data="chartData" />

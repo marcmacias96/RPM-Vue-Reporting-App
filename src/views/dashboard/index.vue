@@ -2,23 +2,23 @@
   <div class="dashboard-container">
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <bar-chart :height="'400px'" />
+      <bar-chart-amount-year :height="'400px'" />
     </el-row>
 
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart-services />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart-procedures />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <bar-chart />
+          <bar-chart-amount-week />
         </div>
       </el-col>
     </el-row>
@@ -27,13 +27,17 @@
 </template>
 
 <script>
-import BarChart from './Components/BarChart'
-import PieChart from './Components/PieChart'
+import BarChartAmountYear from './Components/BarChartAmountYear'
+import BarChartAmountWeek from './Components/BarChartAmountWeek'
+import PieChartServices from './Components/PieChartServices'
+import PieChartProcedures from './Components/PieChartProcedures'
 export default {
   name: 'Dashboard',
   components: {
-    BarChart,
-    PieChart
+    BarChartAmountYear,
+    PieChartServices,
+    PieChartProcedures,
+    BarChartAmountWeek
   },
   data() {
     return {

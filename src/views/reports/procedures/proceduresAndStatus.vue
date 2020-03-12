@@ -56,7 +56,6 @@
         <el-container>
           <el-main>
             <el-table
-              :key="tableKey"
               v-loading="$apollo.loading"
               :data="tramites"
               border
@@ -64,7 +63,6 @@
               height="600"
               highlight-current-row
               style="width: 100%;"
-              @sort-change="sortChange"
             >
               <el-table-column label="Tipo Tramite" min-width="150px">
                 <template slot-scope="{ row }">
@@ -131,17 +129,7 @@
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { tiposTramStatusFilt, listaTramites } from '../querys/listOfQuerys'
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
-// arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
+
 export default {
   name: 'ComplexTable',
   directives: { waves },
@@ -160,13 +148,10 @@ export default {
   },
   data() {
     return {
-      tableKey: 0,
       selected: [],
-      totRecaudado: '',
       tramites: [],
       rep_tramites: null,
       total: 0,
-      listLoading: true,
       listQuery: {
         page: 1,
         limit: 20,
@@ -176,44 +161,7 @@ export default {
         sort: '',
         fechas: null
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
       listaTramites: [],
-      statusOptions: ['published', 'draft', 'deleted'],
-      showReviewer: false,
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      rules: {
-        type: [
-          { required: true, message: 'type is required', trigger: 'change' }
-        ],
-        timestamp: [
-          {
-            type: 'date',
-            required: true,
-            message: 'timestamp is required',
-            trigger: 'change'
-          }
-        ],
-        title: [
-          { required: true, message: 'title is required', trigger: 'blur' }
-        ]
-      },
       downloadLoading: false
     }
   },
@@ -277,55 +225,6 @@ export default {
         })
       }
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
-    sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
@@ -355,10 +254,6 @@ export default {
       var val = (value / 1).toFixed(2).replace('.', ',')
       return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
-    }
   },
   apollo: {
     listaTramites: {

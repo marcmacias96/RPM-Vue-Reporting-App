@@ -391,7 +391,6 @@ export default {
   },
   methods: {
     getDetailList(row) {
-      console.log(row)
       this.dialogTableVisible = true
       this.$apollo.query({
         query: listaDetallesTaskAsig,
@@ -404,6 +403,7 @@ export default {
           this.error = JSON.stringify(error.message)
         }
       }).then(data => {
+        console.log('hola')
         this.listaServicios = data.data.lista_servicios
         console.log(this.listaServicios)
       })

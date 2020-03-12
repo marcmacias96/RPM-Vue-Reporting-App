@@ -11,6 +11,21 @@
         value-format="yyyy-MM-dd HH:mm:ss"
       />
       <el-select
+        v-model="selectedDep"
+        style="width:200px;"
+        multiple
+        filterable
+        collapse-tags
+        placeholder="Departamento"
+      >
+        <el-option
+          v-for="item in DepOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-select
         v-model="selected"
         style="width:200px;"
         multiple
@@ -179,6 +194,7 @@ export default {
         { label: 'Pendiente', value: '6' },
         { label: 'Anulado', value: '7' }
       ],
+      selectedDep: '',
       selected: [],
       tableKey: 0,
       rep_orderDetails: [],
@@ -197,7 +213,7 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      repOptions: [{ label: 'Comprobante', key: 'NC' }, { label: 'Nota Crédito', key: 'CP' }],
+      DepOptions: [{ label: 'Certificados', value: 'Certificados' }, { label: 'Inscripciones', value: 'Inscripciones' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
@@ -246,7 +262,8 @@ export default {
           fechaFin: this.listQuery.fechas[1],
           limit: this.listQuery.total,
           offset: 0,
-          status: this.selected
+          status: this.selected,
+          departamento: this.selectedDep[0]
         },
         error(error) {
           this.error = JSON.stringify(error.message)
@@ -295,9 +312,10 @@ export default {
           variables: {
             fechaInicio: this.listQuery.fechas[0],
             fechaFin: this.listQuery.fechas[1],
-            limit: this.listQuery.limit,
+            limit: 1000,
             offset: this.listQuery.offset,
-            status: this.selected
+            status: this.selected,
+            departamento: this.selectedDep[0]
           },
           error(error) {
             this.error = JSON.stringify(error.message)

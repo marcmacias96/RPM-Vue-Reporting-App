@@ -418,8 +418,8 @@ module.exports = {
   }
   `,
   orderDetailsByDateEnd: gql `
-  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
-    OrdenTrabajo_Detalle(where: {Usuario_OTs: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}, StatusOT: {_in: $status}}, limit: $limit, offset: $offset) {
+  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String) {
+    OrdenTrabajo_Detalle(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : {Departamento : {IdDpto : {_ilike : $departamento}}} }, limit: $limit, offset: $offset) {
       TipoServicio {
         TpServicio
       }
@@ -465,7 +465,7 @@ module.exports = {
       }
       Observacion
     }
-    OrdenTrabajo_Detalle_aggregate(where: {Usuario_OTs: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}, StatusOT: {_in: $status}}) {
+    OrdenTrabajo_Detalle_aggregate(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : {Departamento : {IdDpto : {_ilike : $departamento}}}}) {
       aggregate {
         count
       }

@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-editor-container">
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
+    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:20px;">
       <bar-chart-amount-year />
     </el-row>
 
@@ -54,7 +54,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 12px;
+  padding: 10px;
   background-color: rgb(240, 242, 245);
   position: relative;
   .github-corner {
@@ -65,13 +65,13 @@ export default {
   }
   .chart-wrapper {
     background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
+    padding: 10px 10px 0;
+    margin-bottom: 10px;
   }
 }
 @media (max-width:1024px) {
   .chart-wrapper {
-    padding: 8px;
+    padding: 4px;
   }
 }
 </style>

@@ -19,6 +19,11 @@
       >
         Search
       </el-button>
+      <el-button
+        v-waves
+        class="total-container"
+        type="info"
+      > Total Recaudado $ {{ formatPrice(total) }} </el-button>
     </div>
     <div class="table-container">
       <el-table
@@ -32,101 +37,91 @@
         style="width: 100%;"
         @sort-change="sortChange"
       >
-        <el-table-column align="right">
-          <template slot="header">
-            <span class="total-text">Total Recaudado </span>
-            <el-button
-              v-waves
-              class="total-container"
-              type="info"
-            > $ {{ total }} </el-button>
-          </template>
-          <el-table-column type="expand">
-            <template slot-scope="props">
-              <el-table
-                :data="props.row.Usuarios"
-                style="width: 50%"
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-table
+              :data="props.row.Tareas"
+              style="width: 50%"
+            >
+              <el-table-column
+                label="Tipo Trámite"
+                min-width="150px"
+                prop="DscaTipoTramite"
+              />
+              <el-table-column
+                label="Cantidad"
+                width="120px"
+                prop="Cantidad"
+                align="center"
+              />
+              <el-table-column
+                label="Detalles"
+                width="100px"
+                align="center"
               >
-                <el-table-column
-                  label="Usuarios"
-                  min-width="150px"
-                  prop="Nombre"
-                />
-                <el-table-column
-                  label="Cantidad"
-                  width="120px"
-                  prop="Cantidad"
-                  align="center"
-                />
-                <el-table-column
-                  label="Detalles"
-                  width="100px"
-                  align="center"
-                >
-                  <template slot-scope="{row}">
-                    <el-button type="primary" size="mini" @click="getUserList(row)">
-                      Listar
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </template>
-          </el-table-column>
-          <el-table-column label="Tipo Servicios" min-width="150px">
-            <template slot-scope="{ row }">
-              <span>{{ row.Nombre }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Creación" width="90px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Creacion }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Abierta" width="70px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Abierta }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Por Cobrar" width="110px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.porCobrar }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Pagada" width="80px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Pagada }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Anulada" width="80px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Anulada }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="En Proceso" width="105px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.enProceso }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Lista Entrega" width="110px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.paraEntrega }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Finalizada" width="90px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Finalizada }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Cantidad" width="90px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ row.Total }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Total Recaudado" width="140px" align="center">
-            <template slot-scope="{ row }">
-              <span>{{ formatPrice(row.totalRecaudado) }}</span>
-            </template>
-          </el-table-column>
+                <template slot-scope="{row}">
+                  <el-button type="primary" size="mini" @click="getUserList(row)">
+                    Listar
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column label="Tipo Servicios" min-width="150px">
+          <template slot-scope="{ row }">
+            <span>{{ row.Nombre }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Creación" width="90px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Creacion }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Abierta" width="70px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Abierta }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Por Cobrar" width="110px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.porCobrar }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Pagada" width="80px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Pagada }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Anulada" width="80px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Anulada }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="En Proceso" width="105px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.enProceso }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Lista Entrega" width="110px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.paraEntrega }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Finalizada" width="90px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Finalizada }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Cantidad" width="90px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ row.Total }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Total Recaudado" width="140px" align="center">
+          <template slot-scope="{ row }">
+            <span>{{ formatPrice(row.totalRecaudado) }}</span>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -377,7 +372,7 @@ export default {
   },
   methods: {
     getUserList(row) {
-      this.userName = row.Nombre
+      this.userName = row.DscaTipoTramite
       this.dialogTableVisible = true
       this.$apollo.query({
         query: listaDetallesServAndStat,
@@ -404,6 +399,8 @@ export default {
           }
         }).then(data => {
           this.listaServicios = data.data.rep_tiposServicios
+          console.log(this.listaServicios)
+          this.total = this.listaServicios[this.listaServicios.length - 1].totalRecaudado
         })
       }
     },

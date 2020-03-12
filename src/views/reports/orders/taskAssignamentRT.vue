@@ -30,7 +30,7 @@
         icon="el-icon-download"
         @click="handleDownload"
       >
-        Export
+        Export Excel
       </el-button>
     </div>
     <el-row :gutter="0">
@@ -42,6 +42,7 @@
     </el-row>
     <el-table
       :key="tableKey"
+      v-model="rep_tramitesUsuario"
       v-loading="$apollo.loading"
       :data="rep_tramitesUsuario"
       border
@@ -50,31 +51,6 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column type="expand">
-        <template slot-scope="props">
-          <el-table
-            :data="props.row.tipoServicios"
-            style="width: 50%"
-          >
-            <el-table-column
-              label="Servicios"
-              min-width="150px"
-              prop="TipoServicio.TpServicio"
-            />
-            <el-table-column
-              label="Detalles"
-              width="100px"
-              align="center"
-            >
-              <template slot-scope="{row}">
-                <el-button type="primary" size="mini" @click="getDetailList(props, row)">
-                  Listar
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </template>
-      </el-table-column>
       <el-table-column label="Nombre" min-width="150px">
         <template slot-scope="{ row }">
           <span>{{ row.Apellidos }}</span>
@@ -126,134 +102,171 @@
           <span>{{ row.Total }}</span>
         </template>
       </el-table-column>
+      <el-table-column
+        label="Detalles"
+        width="100px"
+        align="center"
+      >
+        <template slot-scope="{row}">
+          <el-button type="primary" size="mini" @click="getDetailList(row)">
+            Listar
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-dialog :visible.sync="dialogTableVisible" width="90%" center>
-      <el-row type="flex" justify="center">
-        <span>{{ userName }}</span>
-      </el-row>
       <el-table
-        :data="listaDetalles"
-        height="450"
-        style="width: 100%"
+        :key="tableKey"
+        v-loading="$apollo.loading"
+        :data="listaServicios"
+        border
+        fit
+        highlight-current-row
+        style="width: 100%;"
+        @sort-change="sortChange"
       >
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-table
+              :data="props.row.tareas"
+              height="300"
+              style="width: 100%"
+            >
+              <el-table-column
+                label="Tipo Servicio"
+                width="150px"
+                prop="TpServicio"
+              />
+              <el-table-column
+                label="Cantidad"
+                width="100px"
+                prop="Cantidad"
+              />
+              <el-table-column
+                label="Nro Orden"
+                width="130px"
+                prop="NroOrden"
+              />
+              <el-table-column
+                label="Monto"
+                width="100px"
+                prop="AmountInvoiced"
+                align="center"
+              />
+              <el-table-column
+                label="Est Orden"
+                width="100px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ ordersStatus[row.Estado] }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Est Tarea"
+                width="150px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ tasksStatus[row.StatusOT] }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F. Creación"
+                width="160px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.CreadoEn }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F. Inscripción"
+                width="160px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.FechaInscripcion }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F. Estimada E"
+                width="160px"
+              >
+                <template slot-scope="{ row }">
+                  <div :class="{isRed: row.Estilo.isRed, isBlue: row.Estilo.isBlue, isGreen: row.Estilo.isGreen, isYellow: row.Estilo.isYellow}">
+                    <span>{{ row.FechaEstimadaEntrega }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F.Pospuesta E"
+                width="160px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.FechaPospuestaEntrega }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F. Real Ent"
+                width="160px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.FechaRealEntrega }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="F. Finalización"
+                width="160px"
+                prop="FechaFinalizacion"
+              />
+              <el-table-column
+                label="Avaluo"
+                width="100px"
+                prop="Avaluo"
+                align="center"
+              />
+              <el-table-column
+                label="Creado por"
+                width="250px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.NombresCre }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Fojas Adc"
+                width="100px"
+                prop="FojasAdc"
+                align="center"
+              />
+              <el-table-column
+                label="Factura Cli"
+                width="250px"
+              >
+                <template slot-scope="{ row }">
+                  <span>{{ row.Nombres }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Asignado a"
+                width="200px"
+                prop="NombresAsi"
+              />
+              <el-table-column
+                label="Observación"
+                width="200px"
+                prop="Observacion"
+              />
+            </el-table>
+          </template>
+        </el-table-column>
         <el-table-column
           label="Tipo Servicio"
-          width="150px"
-          prop="OrdenTrabajo_Detalle.TipoServicio.TpServicio"
-        />
-        <el-table-column
-          label="Tipo Tramite"
-          width="150px"
-          prop="OrdenTrabajo_Detalle.TipoTramite.DscaTipoTramite"
-        />
-        <el-table-column
-          label="Nro Orden"
-          width="130px"
-          prop="OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.NroOrden"
+          min-width="450px"
+          prop="TpServicio"
         />
         <el-table-column
           label="Cantidad"
-          width="100px"
-          prop="OrdenTrabajo_Detalle.Cantidad"
-          align="center"
-        />
-        <el-table-column
-          label="Monto"
-          width="100px"
-          prop="OrdenTrabajo_Detalle.AmountInvoiced"
-          align="center"
-        />
-        <el-table-column
-          label="Est Orden"
-          width="100px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ ordersStatus[row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.Estado] }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Est Tarea"
           width="150px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ tasksStatus[row.OrdenTrabajo_Detalle.StatusOT] }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F. Creación"
-          width="160px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.CreadoEn }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F. Inscripción"
-          width="160px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.FechaInscripcion }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F. Estimada E"
-          width="160px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.FechaEstimadaEntrega }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F.Pospuesta E"
-          width="160px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.FechaPospuestaEntrega }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F. Real Ent"
-          width="160px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.FechaRealEntrega }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="F. Finalización"
-          width="160px"
-          prop="OrdenTrabajo_Detalle.Usuario_OTs[0].FechaFinalizacion"
+          prop="Cantidad"
         />
-        <el-table-column
-          label="Avaluo"
-          width="100px"
-          prop="OrdenTrabajo_Detalle.Avaluo"
-          align="center"
-        />
-        <el-table-column
-          label="Creado por"
-          width="250px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.usuarioByCreadopor.Nombres }}</span>
-            <span>{{ row.OrdenTrabajo_Detalle.usuarioByCreadopor.Apellidos }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Fojas Adc"
-          width="100px"
-          prop="OrdenTrabajo_Detalle.FojasAdc"
-          align="center"
-        />
-        <el-table-column
-          label="Factura Cli"
-          width="250px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombres }}</span>
-            <span>{{ row.OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos }}</span>
-          </template>
-        </el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -264,7 +277,7 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { usuarioTaksStatusByDep, listaDetallesTaskAsig } from '../querys/listOfQuerys'
 import { usuarioTaksStatusByDepSub } from '../querys/listOfSubs'
-import BarChart from '../Components/BarChart'
+import BarChart from '../Components/charts/BarChart'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -289,6 +302,10 @@ export default {
   },
   data() {
     return {
+      isRed: false,
+      isGreen: false,
+      isYellow: false,
+      isBlue: false,
       ordersStatus: [
         'Creación',
         'Abierta',
@@ -313,6 +330,7 @@ export default {
       dialogTableVisible: false,
       userCedula: '',
       listaDetalles: [],
+      listaServicios: [],
       barChartData: null,
       tableKey: 0,
       rep_tramitesUsuario: null,
@@ -372,23 +390,22 @@ export default {
     this.$apollo.subscriptions.addtram.skip = true
   },
   methods: {
-    getDetailList(rowP, rowCh) {
-      this.userName = rowP.row.Nombres + rowP.row.Apellidos
+    getDetailList(row) {
+      console.log(row)
       this.dialogTableVisible = true
       this.$apollo.query({
         query: listaDetallesTaskAsig,
         variables: {
-          cedula: rowP.row.Cedula,
+          cedula: row.Cedula,
           fechaInicio: this.listQuery.fechas[0].toString(),
-          fechaFin: this.listQuery.fechas[1].toString(),
-          tipoServicio: rowCh.TipoServicio.Codigo
+          fechaFin: this.listQuery.fechas[1].toString()
         },
         error(error) {
           this.error = JSON.stringify(error.message)
         }
       }).then(data => {
-        this.listaDetalles = data.data.Usuario[0].usuarioOtsByIduserasignado
-        console.log(this.listaDetalles)
+        this.listaServicios = data.data.lista_servicios
+        console.log(this.listaServicios)
       })
     },
     handleFilter() {
@@ -505,7 +522,6 @@ export default {
       })
     },
     formatJson(filterVal) {
-      console.log('hola')
       return this.rep_tramitesUsuario.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
@@ -539,9 +555,11 @@ export default {
           }
         },
         result({ data }) {
+          console.log(data)
           var mostrar = {}
           mostrar.nombres = []
           mostrar.totales = []
+          var lista = []
           data.Usuario.forEach(tramites => {
             var aux = {
               Nombres: tramites.Apellidos + ' ' + tramites.Nombres,
@@ -557,7 +575,7 @@ export default {
             }
             mostrar.nombres.push(tramites.Apellidos + ' ' + tramites.Nombres)
             mostrar.totales.push(tramites.total.aggregate.count)
-            this.rep_tramitesUsuario.push(aux)
+            lista.push(aux)
           })
           this.barChartData = mostrar
         }
@@ -567,6 +585,22 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.isRed {
+  background-color: red;
+  color: white;
+}
+.isYellow {
+  background-color: yellow;
+    color: white;
+}
+.isGreen {
+  background-color: green;
+    color: white;
+}
+.isBlue {
+  background-color: blue;
+  color: white;
+}
 .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
@@ -578,3 +612,4 @@ export default {
   }
 }
 </style>
+

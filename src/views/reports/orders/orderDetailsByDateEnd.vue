@@ -10,17 +10,19 @@
         align="right"
         value-format="yyyy-MM-dd HH:mm:ss"
       />
-      <el-input v-model="listQuery.title" placeholder="Nro Comprobante" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.user" placeholder="Usuario" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select
         v-model="selected"
-        placeholder="Tipo Reporte"
+        style="width:200px;"
+        multiple
+        filterable
+        collapse-tags
+        placeholder="Estados"
       >
         <el-option
-          v-for="item in repOptions"
-          :key="item.key"
+          v-for="item in listaEstados"
+          :key="item.value"
           :label="item.label"
-          :value="item.key"
+          :value="item.value"
         />
       </el-select>
       <el-button
@@ -34,15 +36,20 @@
       </el-button>
       <el-button
         v-waves
-        class="total-container"
-        type="info"
-      > Total Recaudado $ {{ formatPrice(total) }} </el-button>
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="exportPDF"
+      >
+        Export PDF
+      </el-button>
     </div>
     <div class="table-container">
       <el-table
         :key="tableKey"
         v-loading="listLoading"
-        :data="rep_comprobantes"
+        :data="rep_orderDetails"
         border
         fit
         height="550"
@@ -50,71 +57,63 @@
         style="width: 100%;"
       >
         <el-table-column
-          label="Comprobante"
+          label="Fecha Registro"
           width="150px"
-          prop="ProformaFactura.NroFactura"
-          align="center"
-        />
-        <el-table-column
-          label="Fecha-Hora"
-          width="120px"
-          prop="ProformaFactura.FacturadoEn"
-          align="center"
-        />
-        <el-table-column
-          label="Cedula"
-          width="130px"
-          prop="ProformaFactura.clienteByCliente.CedRuc"
-          align="center"
-        />
-        <el-table-column
-          label="Contribuyente"
-          min-width="200px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.ProformaFactura.clienteByCliente.Nombres }}</span>
-            <span>{{ row.ProformaFactura.clienteByCliente.Apellidos }}</span>
-            <span>{{ row.ProformaFactura.clienteByCliente.NombreEmpresa }}</span>
+            <span>{{ row.Usuario_OTs[0].FechaRegistro | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="Creado Por"
-          min-width="200px"
+          label="Estado Tarea"
+          width="120px"
+          align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.ProformaFactura.usuarioByCreadopor.Nombres }}</span>
-            <span>{{ row.ProformaFactura.usuarioByCreadopor.Apellidos }}</span>
+            <span>{{ tasksStatus[row.StatusOT] }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="Cantidad"
-          width="90px"
-          prop="CantidadFactura"
+          label="Asignado a"
+          min-width="200px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.usuarioByIduserasignado.Nombres }}</span>
+            <span>{{ row.usuarioByIduserasignado.Apellidos }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Tipo Servicio"
+          min-width="200px"
+          prop="TipoServicio.TpServicio"
           align="center"
         />
         <el-table-column
-          label="Descuento"
-          width="100px"
-          prop="Dscto"
+          label="Nro Orden"
+          width="140px"
+          prop="OrdenTrabajo_Cabecera.NroOrden"
           align="center"
         />
         <el-table-column
-          label="Valor Unitario"
-          width="120px"
-          prop="ValorUnitario"
+          label="F. Est. Finalización"
+          width="150px"
+          prop="FechaEstimadaEntrega"
           align="center"
         />
         <el-table-column
-          label="IVA"
-          width="90px"
-          prop="Impuesto"
+          label="F. Est. Finalización"
+          width="150px"
+          prop="FechaEstimadaEntrega"
           align="center"
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaEstimadaEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
-          label="Total"
-          width="90px"
-          prop="Total"
-          align="center"
+          label="Observaciones"
+          min-width="300px"
+          prop="Observacion"
         />
       </el-table>
       <pagination v-show="listQuery.total>0" :total="listQuery.total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleFilter" />
@@ -125,8 +124,11 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { invoiceBalance } from '../querys/listOfQuerys'
+import { orderDetailsByDateEnd } from '../querys/listOfQuerys'
 import Pagination from '@/components/Pagination'
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+import moment from 'moment'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -157,9 +159,29 @@ export default {
   },
   data() {
     return {
-      selected: '',
+      tasksStatus: [
+        'No Iniciado',
+        'Rev Jurídico',
+        'Rev Jurídico C',
+        'En Proceso',
+        'Por Firmar',
+        'Completado',
+        'Pendiente',
+        'Anulado'
+      ],
+      listaEstados: [
+        { label: 'No Iniciado', value: '0' },
+        { label: 'Rev Jurídico', value: '1' },
+        { label: 'Rev Jud Comp', value: '2' },
+        { label: 'En Proceso', value: '3' },
+        { label: 'Por Firmar', value: '4' },
+        { label: 'Completado', value: '5' },
+        { label: 'Pendiente', value: '6' },
+        { label: 'Anulado', value: '7' }
+      ],
+      selected: [],
       tableKey: 0,
-      rep_comprobantes: [],
+      rep_orderDetails: [],
       listLoading: false,
       total: 0,
       listQuery: {
@@ -215,31 +237,74 @@ export default {
     }
   },
   methods: {
+    exportPDF() {
+      this.downloadLoading = true
+      this.$apollo.query({
+        query: orderDetailsByDateEnd,
+        variables: {
+          fechaInicio: this.listQuery.fechas[0],
+          fechaFin: this.listQuery.fechas[1],
+          limit: this.listQuery.total,
+          offset: 0,
+          status: this.selected
+        },
+        error(error) {
+          this.error = JSON.stringify(error.message)
+        }
+      }).then(data => {
+        var count = 0
+        var rows = data.data.OrdenTrabajo_Detalle.map(det => {
+          var aux = {
+            Nro: count++,
+            fRegistro: moment(det.Usuario_OTs[0].FechaRegistro).format('YYYY-MM-DD hh:mm:ss'),
+            Etarea: this.tasksStatus[det.StatusOT],
+            Asignado: `${det.usuarioByIduserasignado.Nombres} ${det.usuarioByIduserasignado.Apellidos}`,
+            tpTramite: det.TipoTramite.DscaTipoTramite,
+            NroOrden: det.OrdenTrabajo_Cabecera.NroOrden,
+            FEfin: det.FechaEstimadaEntrega,
+            Observacion: det.Observacion
+          }
+          return aux
+        })
+        var columns = [
+          { title: 'Nro', dataKey: 'Nro' },
+          { title: 'Fecha Registro', dataKey: 'fRegistro' },
+          { title: 'Estado Tarea', dataKey: 'Etarea' },
+          { title: 'Asiganado a', dataKey: 'Asignado' },
+          { title: 'Tipo Tramite', dataKey: 'tpTramite' },
+          { title: 'Nro Orden', dataKey: 'NroOrden' },
+          { title: 'Fecha E. Fin', dataKey: 'FEfin' },
+          { title: 'Observaciones', dataKey: 'Observacion' }
+        ]
+        var doc = jsPDF('p', 'pt')
+        doc.autoTable(columns, rows, {
+          styles: {
+            cellPadding: 5
+          }
+        })
+        doc.save('table.pdf')
+      })
+      this.downloadLoading = false
+    },
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.listLoading = true
-        var numOrden = '%' + this.listQuery.title + '%'
-        var tipo = '%' + this.selected + '%'
-        var usuario = '%' + this.listQuery.user + '%'
         this.listQuery.offset = (this.listQuery.page - 1) * this.listQuery.limit
         this.$apollo.query({
-          query: invoiceBalance,
+          query: orderDetailsByDateEnd,
           variables: {
             fechaInicio: this.listQuery.fechas[0],
             fechaFin: this.listQuery.fechas[1],
-            factura: numOrden,
-            tipo: tipo,
-            offset: this.listQuery.offset,
             limit: this.listQuery.limit,
-            usuario: usuario
+            offset: this.listQuery.offset,
+            status: this.selected
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.total = data.data.ProformaFacturaDetalle_aggregate.aggregate.sum.Total
-          this.rep_comprobantes = data.data.ProformaFacturaDetalle
-          this.listQuery.total = data.data.ProformaFacturaDetalle_aggregate.aggregate.Total
+          this.rep_orderDetails = data.data.OrdenTrabajo_Detalle
+          this.listQuery.total = data.data.OrdenTrabajo_Detalle_aggregate.aggregate.count
           this.listLoading = false
         })
       }
@@ -300,7 +365,7 @@ export default {
         type: 'success',
         duration: 2000
       })
-      this.rep_comprobantes.splice(index, 1)
+      this.rep_orderDetails.splice(index, 1)
     },
     handleDownload() {
       this.downloadLoading = true
@@ -318,7 +383,7 @@ export default {
     },
     formatJson(filterVal) {
       console.log('hola')
-      return this.rep_comprobantes.map(v =>
+      return this.rep_orderDetails.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])

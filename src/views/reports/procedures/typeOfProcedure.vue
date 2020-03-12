@@ -14,6 +14,7 @@
         v-model="selected"
         style="width:500px;"
         multiple
+        filterable
         collapse-tags
         placeholder="Tramites"
       >
@@ -43,6 +44,11 @@
       >
         Export
       </el-button>
+      <el-button
+        v-waves
+        class="total-container"
+        type="info"
+      > Total Recaudado $ {{ formatPrice(total) }} </el-button>
     </div>
 
     <el-table
@@ -57,30 +63,20 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column align="right">
-        <template slot="header">
-          <span class="total-text">Total Recaudado </span>
-          <el-button
-            v-waves
-            class="total-container"
-            type="info"
-          > $ {{ total }} </el-button>
+      <el-table-column label="Tipo de trámite" min-width="150px">
+        <template slot-scope="{ row }">
+          <span>{{ row.DscaTipoTramite }}</span>
         </template>
-        <el-table-column label="Tipo de trámite" min-width="150px">
-          <template slot-scope="{ row }">
-            <span>{{ row.DscaTipoTramite }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Cantidad" width="110px" align="center">
-          <template slot-scope="{ row }">
-            <span>{{ row.Cantidad }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Monto" width="110px" align="center">
-          <template slot-scope="{ row }">
-            <span>{{ formatPrice(row.AmountInvoiced) }}</span>
-          </template>
-        </el-table-column>
+      </el-table-column>
+      <el-table-column label="Cantidad" width="110px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ row.Cantidad }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Monto" width="110px" align="center">
+        <template slot-scope="{ row }">
+          <span>{{ formatPrice(row.AmountInvoiced) }}</span>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -181,7 +177,7 @@ export default {
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
             fechaFin: this.listQuery.fechas[1].toString(),
-            title: this.selected
+            tramites: this.selected
           },
           error(error) {
             this.error = JSON.stringify(error.message)
@@ -197,12 +193,13 @@ export default {
             var aux = {
               DscaTipoTramite: tramite.DscaTipoTramite,
               Cantidad: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad,
-              AmountInvoiced: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
+              AmountInvoiced: tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total
             }
             this.rep_tramitesFilter.push(aux)
             total.Cantidad += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad
-            total.AmountInvoiced += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.AmountInvoiced
+            total.AmountInvoiced += tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total
           })
+          this.total = total.AmountInvoiced
           this.rep_tramitesFilter.push(total)
         })
       }

@@ -4,11 +4,17 @@ module.exports = {
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $title: String!) {
     TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, DscaTipoTramite: {_ilike: $title}}, order_by: {DscaTipoTramite: asc}) {
       DscaTipoTramite
-      OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}) {
+      OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+          aggregate {
+            sum {
+              Cantidad
+            }
+          }
+        }
+      ProformaFacturaDetalles_aggregate(where: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}) {
         aggregate {
           sum {
-            AmountInvoiced
-            Cantidad
+            Total
           }
         }
       }
@@ -32,26 +38,27 @@ module.exports = {
   }
   `,
   tiposServicios: gql `
-    query ($fechaInicio: String!, $fechaFin: String!) {
-      rep_tiposServicios(fechaFin: $fechaFin, fechaInicio: $fechaInicio){
-        Nombre
-        Creacion
-        Abierta
-        porCobrar
-        Pagada
-        Anulada
-        enProceso
-        paraEntrega
-        Finalizada
-        Total
-        totalRecaudado
-        Usuarios{
-          OID
-          Nombre
-          Cantidad
-        }
+   query rep_tiposServicios($fechaInicio: String!, $fechaFin: String!) {
+    rep_tiposServicios(fechaFin: $fechaFin, fechaInicio: $fechaInicio){
+      Nombre
+      Creacion
+      Abierta
+      porCobrar
+      Pagada
+      Anulada
+      enProceso
+      paraEntrega
+      Finalizada
+      Total
+      totalRecaudado
+      Tareas{
+        OID
+        Codigo
+        DscaTipoTramite
+        Cantidad
       }
     }
+  }
  `,
   listaTramites: gql`
    query lista_tramites{
@@ -62,21 +69,26 @@ module.exports = {
   }
  `,
   tiposTramiteFilt: gql`
-    query tip($fechaInicio: timestamp!, $fechaFin: timestamp!, $title: [String!]!) {
-    TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, Codigo: {_in: $title}}, order_by: {}) {
-      DscaTipoTramite
-      Codigo
-      OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}) {
-        aggregate {
-          sum {
-            AmountInvoiced
-            Cantidad
+    query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $tramites: [String!]!) {
+      TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, Codigo: {_in: $tramites}}, order_by: {}) {
+        DscaTipoTramite
+        Codigo
+        ProformaFacturaDetalles_aggregate(where: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}) {
+          aggregate {
+            sum {
+              Total
+            }
+          }
+        }
+        OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+          aggregate {
+            sum {
+              Cantidad
+            }
           }
         }
       }
     }
-  }
-
  `,
   tiposTramStatusFilt: gql`
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $tramites: [String!]!) {
@@ -141,14 +153,19 @@ module.exports = {
       total: OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
         aggregate {
           sum {
-            AmountInvoiced
             Cantidad
+          }
+        }
+      }
+      totalRecaudado: ProformaFacturaDetalles_aggregate(where: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}){
+        aggregate{
+          sum{
+            Total
           }
         }
       }
     }
   }
-
  `,
   usuarioTaksStatusByDep: gql `
     query usuarioTaksStatusByDep($fechaInicio: timestamp!, $fechaFin: timestamp!, $departamento: String!) {
@@ -309,42 +326,36 @@ module.exports = {
   }
   `,
   listaDetallesTaskAsig: gql `
-  query ($cedula: String!, $fechaInicio: timestamp, $fechaFin: timestamp, $tipoServicio: String ) {
-    Usuario (where: {Cedula: {_eq : $cedula }}){
-      usuarioOtsByIduserasignado (where: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {TipoServicio: {Codigo: {_eq: $tipoServicio }}}}) {
-        OrdenTrabajo_Detalle{
-          TipoServicio {
-            TpServicio
-          }
-          TipoTramite {
-            DscaTipoTramite
-          }
-          StatusOT
-          CreadoEn
-          FechaInscripcion
-          FechaInicioTrabajo
-          FechaEstimadaEntrega
-          FechaPospuestaEntrega
-          FechaRealEntrega
-          Avaluo
-          AmountInvoiced
-          FojasAdc
-          Cantidad
-          usuarioByCreadopor {
-            Nombres
-            Apellidos
-          }
-          Usuario_OTs{
-          FechaFinalizacion
-          }
-          OrdenTrabajo_Cabecera {
-            NroOrden
-            Estado
-            clienteByClientefactura {
-              Nombres
-              Apellidos
-            }
-          }
+  query($fechaInicio: String!, $fechaFin: String!, $cedula: String!){
+    lista_servicios(fechaFin: $fechaFin, fechaInicio: $fechaInicio, cedula: $cedula){
+      Cantidad
+      TpServicio
+      tareas{
+        TpServicio
+        DscaTipoTramite
+        StatusOT
+        CreadoEn
+        FechaInscripcion
+        FechaInicioTrabajo
+        FechaEstimadaEntrega
+        FechaPospuestaEntrega
+        FechaRealEntrega
+        Avaluo
+        AmountInvoiced
+        FojasAdc
+        Cantidad
+        NombresAsi
+        NombresCre
+        FechaFinalizacion
+        NroOrden
+        Estado
+        Nombres
+        Observacion
+        Estilo{
+          isGreen
+          isBlue
+          isRed
+          isYellow
         }
       }
     }
@@ -380,6 +391,173 @@ module.exports = {
           Total
         }
       }
+    }
+  }
+  `,
+  userRankingTasks: gql `
+  subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
+    Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+      Nombres
+      Apellidos
+      porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 4}}}) {
+        aggregate {
+          count
+        }
+      }
+      completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 5}}}) {
+        aggregate {
+          count
+        }
+      }
+      total: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {_or: [{StatusOT: {_eq: 4}}, {StatusOT: {_eq: 5}}]}}) {
+        aggregate {
+          count
+        }
+      }
+    }
+  }
+  `,
+  orderDetailsByDateEnd: gql `
+  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
+    OrdenTrabajo_Detalle(where: {Usuario_OTs: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}, StatusOT: {_in: $status}}, limit: $limit, offset: $offset) {
+      TipoServicio {
+        TpServicio
+      }
+      TipoTramite {
+        DscaTipoTramite
+      }
+      StatusOT
+      CreadoEn
+      FechaInscripcion
+      FechaInicioTrabajo
+      FechaEstimadaEntrega
+      FechaPospuestaEntrega
+      FechaRealEntrega
+      Avaluo
+      AmountInvoiced
+      FojasAdc
+      Cantidad
+      usuarioByIduserasignado {
+        Nombres
+        Apellidos
+      }
+      usuarioByCreadopor {
+        Nombres
+        Apellidos
+      }
+      Usuario_OTs {
+        FechaRegistro
+        FechaFinalizacion
+      }
+      OrdenTrabajo_Cabecera {
+        ExcentoCobro
+        OrdenGubernamental
+        NroOrden
+        Estado
+        clienteByClientefactura {
+          NombreEmpresa
+          RepresentanteLegal
+          TerceraEdad
+          Nombres
+          Apellidos
+          DiscapacidadValidaParaDescuento
+        }
+      }
+      Observacion
+    }
+    OrdenTrabajo_Detalle_aggregate(where: {Usuario_OTs: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}, StatusOT: {_in: $status}}) {
+      aggregate {
+        count
+      }
+    }
+  }
+  `,
+  orderDetailsByDateStart: gql `
+  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
+    OrdenTrabajo_Detalle(where: {CreadoEn: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}}, limit: $limit, offset: $offset) {
+      TipoServicio {
+        TpServicio
+      }
+      TipoTramite {
+        DscaTipoTramite
+      }
+      StatusOT
+      CreadoEn
+      FechaInscripcion
+      FechaInicioTrabajo
+      FechaEstimadaEntrega
+      FechaPospuestaEntrega
+      FechaRealEntrega
+      Avaluo
+      AmountInvoiced
+      FojasAdc
+      Cantidad
+      usuarioByIduserasignado {
+        Nombres
+        Apellidos
+      }
+      usuarioByCreadopor {
+        Nombres
+        Apellidos
+      }
+      Usuario_OTs {
+        FechaRegistro
+        FechaFinalizacion
+      }
+      OrdenTrabajo_Cabecera {
+        ExcentoCobro
+        OrdenGubernamental
+        NroOrden
+        Estado
+        clienteByClientefactura {
+          NombreEmpresa
+          RepresentanteLegal
+          TerceraEdad
+          Nombres
+          Apellidos
+          DiscapacidadValidaParaDescuento
+        }
+      }
+      Observacion
+    }
+    OrdenTrabajo_Detalle_aggregate(where: {CreadoEn: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}}) {
+      aggregate {
+        count
+      }
+    }
+  }
+  `,
+  detellesExcel: gql `
+  query($fechaInicio: String!, $fechaFin: String!, $status: [Int]){
+    detalles_excel(fechaFin: $fechaFin, fechaInicio: $fechaInicio, status: $status){
+      Nro
+      TpServicio
+      fRegistro
+      Etarea
+      Asignado
+      tpTramite
+      NroOrden
+      FEfin
+      Observacion
+      CreadoEn
+      FInscripcion
+      FInicioTrabajo
+      FPostpuestaEntrega
+      FRealEntrega
+      Avaluo
+      Monto
+      FojasAdc
+      Cantidad
+      CreadoPor
+      FFinalizacion
+      ExcentoCobro
+      OrdenGubernamental
+      EstadoOrden
+      Cliente
+      Empresa
+      RepLegal
+      TerceraEdad
+      Discapacidad
     }
   }
   `

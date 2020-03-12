@@ -18,6 +18,7 @@ import '@/permission' // permission control
 import { createProvider } from './vue-apollo'
 
 Vue.use(AuthPlugin)
+Vue.use(require('vue-moment'))
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

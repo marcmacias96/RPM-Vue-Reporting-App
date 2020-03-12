@@ -109,7 +109,7 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { usuarioOTsStatusByDep } from '../querys/listOfQuerys'
 import { usuarioOTsStatusByDepSub } from '../querys/listOfSubs'
-import BarChart from '../Components/BarChart'
+import BarChart from '../Components/charts/BarChart'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },

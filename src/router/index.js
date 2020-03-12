@@ -55,11 +55,10 @@ export const constantRoutes = [
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
   },
-
   {
     path: '/reportes',
     component: Layout,
-    redirect: '/reports/table',
+    redirect: '/reports/',
     name: 'Reportes',
     meta: { title: 'Reportes', icon: 'example' },
     children: [
@@ -120,6 +119,18 @@ export const constantRoutes = [
             name: 'ordersAssignamentRealTime',
             component: () => import('@/views/reports/orders/ordersAssignamentRT'),
             meta: { title: 'Asignación de Ordenes T.R', icon: 'table' }
+          },
+          {
+            path: 'orderDetailsByDateEnd',
+            name: 'orderDetailsByDateEnd',
+            component: () => import('@/views/reports/orders/orderDetailsByDateEnd'),
+            meta: { title: 'x Fecha Fin', icon: 'table' }
+          },
+          {
+            path: 'orderDetailsByDateStart',
+            name: 'orderDetailsByDateStart',
+            component: () => import('@/views/reports/orders/orderDetailsByDateStart'),
+            meta: { title: 'x Fecha Inicio', icon: 'table' }
           }
         ]
       },
@@ -136,6 +147,26 @@ export const constantRoutes = [
             meta: { title: 'Recaudación x Comprobante', icon: 'table' }
           }
         ]
+      },
+      {
+        path: 'visualReports',
+        name: 'VisualReports',
+        component: () => import('@/views/reports/invoice/index'),
+        meta: { title: 'Reportes Visuales', icon: 'Charts' },
+        children: [
+          {
+            path: 'rankingUser',
+            name: 'rankingUser',
+            component: () => import('@/views/reports/orders/taskCompleted'),
+            meta: { title: 'Ranking por Departamento', icon: 'rankings' }
+          },
+          {
+            path: 'sd',
+            name: 'ss',
+            component: () => import('@/views/reports/orders/taskCompleted'),
+            meta: { title: 'Ranking por Departamento', icon: 'table' }
+          }
+        ]
       }
     ]
   },
@@ -149,7 +180,6 @@ export const constantRoutes = [
       }
     ]
   },
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true },
   {

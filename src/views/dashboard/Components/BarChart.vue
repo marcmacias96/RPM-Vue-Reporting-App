@@ -18,20 +18,17 @@ export default {
     },
     width: {
       type: String,
-      default: '300%'
+      default: '100%'
     },
     height: {
       type: String,
       default: '300px'
-    },
-    chartData: {
-      type: Object,
-      default: null
     }
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      chartData: {}
     }
   },
   watch: {

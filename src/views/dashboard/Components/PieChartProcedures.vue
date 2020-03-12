@@ -5,7 +5,9 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
+import { AmountOfProcedures } from '../Querys/listOfQuerys'
 import resize from './mixins/resize'
+import moment from 'moment'
 export default {
   mixins: [resize],
   props: {
@@ -19,13 +21,16 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '375px'
     }
   },
   data() {
     return {
       chart: null,
-      chartData: {}
+      chartData: {
+        data: [],
+        labels: []
+      }
     }
   },
   watch: {
@@ -54,6 +59,11 @@ export default {
     },
     setOptions(Data) {
       this.chart.setOption({
+        title: {
+          text: 'Recaudación x Servicios',
+          left: 'center',
+          align: 'right'
+        },
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -61,7 +71,7 @@ export default {
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['No Iniciado', 'Revisión jurídico', 'R.J Completado', 'En proceso', 'Por Firmar', 'Completado', 'Pendiente', 'Anulado']
+          data: Data.labels
         },
         series: [
           {
@@ -70,21 +80,49 @@ export default {
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [
-              { value: Data.tNoIniciado.aggregate.count, name: 'No Iniciado' },
-              { value: Data.tRevJud.aggregate.count, name: 'Revisión jurídico' },
-              { value: Data.tRevJudComp.aggregate.count, name: 'R.J Completado' },
-              { value: Data.tEnProceso.aggregate.count, name: 'En proceso' },
-              { value: Data.tPorFirmar.aggregate.count, name: 'Por firmar' },
-              { value: Data.tCompletado.aggregate.count, name: 'Completado' },
-              { value: Data.tPendiete.aggregate.count, name: 'Pendiente' },
-              { value: Data.tAnulado.aggregate.count, name: 'Anulado' }
-            ],
+            data: Data.data,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }
         ]
       })
+    }
+  },
+  apollo: {
+    $subscribe: {
+      addtram: {
+        query: AmountOfProcedures,
+        variables() {
+          this.fechas = []
+          this.fechas[0] = moment().set({ 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
+          this.fechas[1] = moment().set({ 'hour': 23, 'minute': 59, 'second': 59 }).format('YYYY-MM-DD HH:mm:ss')
+          return {
+            fechaInicio: this.fechas[0],
+            fechaFin: this.fechas[1]
+          }
+        },
+        result({ data }) {
+          data.TipoTramite.sort(function(a, b) {
+            if (a.ProformaFacturaDetalles_aggregate.aggregate.sum.Total < b.ProformaFacturaDetalles_aggregate.aggregate.sum.Total) {
+              return 1
+            }
+            if (a.ProformaFacturaDetalles_aggregate.aggregate.sum.Total > b.ProformaFacturaDetalles_aggregate.aggregate.sum.Total) {
+              return -1
+            }
+            return 0
+          })
+          this.chartData.labels = []
+          this.chartData.data = []
+          for (let index = 0; index < 5; index++) {
+            this.chartData.labels.push(data.TipoTramite[index].DscaTipoTramite)
+            var dat = {
+              name: data.TipoTramite[index].DscaTipoTramite,
+              value: data.TipoTramite[index].ProformaFacturaDetalles_aggregate.aggregate.sum.Total
+            }
+            this.chartData.data.push(dat)
+          }
+        }
+      }
     }
   }
 }

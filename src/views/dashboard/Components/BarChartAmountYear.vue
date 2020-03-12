@@ -23,7 +23,7 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '250px'
     }
   },
   data() {
@@ -64,17 +64,22 @@ export default {
     },
     setOptions(Data) {
       this.chart.setOption({
+        title: {
+          text: 'Recaudación Anual',
+          left: 'center',
+          align: 'right'
+        },
         tooltip: {
           trigger: 'axis',
           formatter: function(val) {
-            return val
+            return parseFloat(val[0].value).toFixed(2)
           },
           axisPointer: {
             type: 'shadow'
           }
         },
         grid: {
-          top: 10,
+          top: '10%',
           left: '2%',
           right: '2%',
           bottom: '3%',

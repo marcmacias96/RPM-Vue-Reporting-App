@@ -6,7 +6,8 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
-
+import moment from 'moment'
+import { AmountWeek } from '../Querys/listOfQuerys'
 const animationDuration = 6000
 
 export default {
@@ -22,20 +23,25 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '375px'
     }
   },
   data() {
     return {
       chart: null,
-      chartData: {}
+      chartData: {
+        labels: [],
+        data: [0, 0, 0, 0, 0]
+      }
     }
   },
   watch: {
     chartData: {
       deep: true,
       handler(val) {
-        this.setOptions(val)
+        if (val != null) {
+          this.setOptions(val)
+        }
       }
     }
   },
@@ -54,9 +60,16 @@ export default {
   methods: {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
+      this.setOptions(this.chartData)
     },
     setOptions(Data) {
       this.chart.setOption({
+        title: {
+          text: 'Recaudación Semanal',
+          left: 'center',
+          align: 'right',
+          button: 'center'
+        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
@@ -64,7 +77,7 @@ export default {
           }
         },
         grid: {
-          top: 10,
+          top: '10%',
           left: '2%',
           right: '2%',
           bottom: '3%',
@@ -72,8 +85,8 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: Data.nombres,
-          show: false,
+          data: Data.labels,
+          show: true,
           axisTick: {
             alignWithLabel: true
           }
@@ -85,14 +98,52 @@ export default {
           }
         }],
         series: {
-          name: 'Total por usuario',
+          name: 'Monto',
           type: 'bar',
           stack: 'vistors',
           barWidth: '80%',
-          data: Data.totales,
+          data: Data.data,
           animationDuration
         }
       })
+    }
+  },
+  apollo: {
+    $subscribe: {
+      addtram: {
+        query: AmountWeek,
+        variables() {
+          this.fechas = []
+          var fecha = new Date() // obtener fecha hoy
+          var dia = fecha.getDay() // obtiene el indice del dia
+          var diff = fecha.getDate() - dia + (dia === 0 ? -6 : 1) // obtiene el lunes de la semana
+          fecha = new Date(fecha.setDate(diff)) // devuelve la fecha desde el lunes
+          for (let index = 0; index < 6; index++) {
+            this.fechas[index] = moment(fecha).set({ 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
+            fecha.setDate(fecha.getDate() + 1)
+          }
+          return {
+            lunes: this.fechas[0],
+            martes: this.fechas[1],
+            miercoles: this.fechas[2],
+            jueves: this.fechas[3],
+            viernes: this.fechas[4],
+            viernesf: this.fechas[5]
+          }
+        },
+        result({ data }) {
+          this.chartData.labels = ['Lunes', 'Martes', 'Miécoles', 'Jueves', 'Viernes']
+          var values = [0, 0, 0, 0, 0]
+          data.ProformaFactura.forEach(data => {
+            values[0] += data.lunes.aggregate.sum.Total == null ? 0 : data.lunes.aggregate.sum.Total
+            values[1] += data.martes.aggregate.sum.Total == null ? 0 : data.martes.aggregate.sum.Total
+            values[2] += data.miercoles.aggregate.sum.Total == null ? 0 : data.miercoles.aggregate.sum.Total
+            values[3] += data.jueves.aggregate.sum.Total == null ? 0 : data.jueves.aggregate.sum.Total
+            values[4] += data.viernes.aggregate.sum.Total == null ? 0 : data.viernes.aggregate.sum.Total
+          })
+          this.chartData.data = values
+        }
+      }
     }
   }
 }

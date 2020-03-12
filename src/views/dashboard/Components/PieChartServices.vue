@@ -21,7 +21,7 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '375px'
     }
   },
   data() {
@@ -59,6 +59,11 @@ export default {
     },
     setOptions(Data) {
       this.chart.setOption({
+        title: {
+          text: 'Recaudación x Servicio',
+          left: 'center',
+          align: 'right'
+        },
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'

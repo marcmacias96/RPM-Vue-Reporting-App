@@ -75,7 +75,7 @@
         </el-table-column>
         <el-table-column label="Creación" width="90px" align="center">
           <template slot-scope="{ row }">
-            <span>{{ row.Creacion }}</span>
+            <span>{{ row.Creacion}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Abierta" width="70px" align="center">
@@ -105,7 +105,7 @@
         </el-table-column>
         <el-table-column label="Lista Entrega" width="110px" align="center">
           <template slot-scope="{ row }">
-            <span>{{ row.paraEntrega }}</span>
+            <span>{{ row.paraEntrega | moment("YYYY-MM-DD hh:mm:ss")}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Finalizada" width="90px" align="center">
@@ -182,7 +182,7 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.CreadoEn }}</span>
+            <span>{{ row.CreadoEn | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -190,7 +190,7 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaInscripcion }}</span>
+            <span>{{ row.FechaInscripcion | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -198,7 +198,7 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaEstimadaEntrega }}</span>
+            <span>{{ row.FechaEstimadaEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -206,7 +206,7 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaPospuestaEntrega }}</span>
+            <span>{{ row.FechaPospuestaEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -214,14 +214,17 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaRealEntrega }}</span>
+            <span>{{ row.FechaRealEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="F. Finalización"
           width="160px"
-          prop="Usuario_OTs[0].FechaFinalizacion"
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.Usuario_OTs[0].FechaFinalizacion | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           label="Avaluo"
           width="100px"

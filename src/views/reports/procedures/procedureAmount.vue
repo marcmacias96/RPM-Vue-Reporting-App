@@ -67,14 +67,169 @@
           <span>{{ formatPrice( row.AmountInvoiced) }}</span>
         </template>
       </el-table-column>
+      <el-table-column
+        label="Detalles"
+        width="100px"
+        align="center"
+      >
+        <template slot-scope="{row}">
+          <el-button type="primary" size="mini" @click="getDetalleList(row)">
+            Listar
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
+    <el-dialog :visible.sync="dialogoVisible" width="90%" center>
+      <el-row type="flex" justify="end" align="middle">
+        <el-col :span="2">
+          <span>{{ NombreTramite }}</span>
+        </el-col>
+        <el-col :span="2" :offset="9">
+          <el-button
+            v-waves
+            :loading="downloadLoading"
+            class="filter-item"
+            type="primary"
+            icon="el-icon-download"
+            @click="handleDownload"
+          >
+            Export
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-table
+        :data="listaDetalles"
+        height="450"
+        style="width: 100%"
+      >
+        <el-table-column
+          label="Tipo Servicio"
+          width="150px"
+          prop="TpServicio"
+        />
+        <el-table-column
+          label="Tipo Tramite"
+          width="150px"
+          prop="DscaTipoTramite"
+        />
+        <el-table-column
+          label="Nro Orden"
+          width="130px"
+          prop="NroOrden"
+        />
+        <el-table-column
+          label="Cantidad"
+          width="100px"
+          prop="Cantidad"
+          align="center"
+        />
+        <el-table-column
+          label="Monto"
+          width="100px"
+          prop="AmountInvoiced"
+          align="center"
+        />
+        <el-table-column
+          label="Est Orden"
+          width="100px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ ordersStatus[row.Estado] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Est Tarea"
+          width="150px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ tasksStatus[row.StatusOT] }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Creación"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.CreadoEn | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Inscripción"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaInscripcion | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Estimada E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaEstimadaEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F.Pospuesta E"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaPospuestaEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Real Ent"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaRealEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Finalización"
+          width="160px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaEstimadaEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Avaluo"
+          width="100px"
+          prop="Avaluo"
+          align="center"
+        />
+        <el-table-column
+          label="Creado por"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.CreaNombre }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="Fojas Adc"
+          width="100px"
+          prop="FojasAdc"
+          align="center"
+        />
+        <el-table-column
+          label="Factura Cli"
+          width="250px"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.Clinombre }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramite } from '../querys/listOfQuerys'
+import { tiposTramite, tramitesMontoDetalles } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -104,6 +259,29 @@ export default {
   },
   data() {
     return {
+      ordersStatus: [
+        'Creación',
+        'Abierta',
+        'Por Cobrar',
+        'Pagada',
+        'Anulada',
+        'En Proceso',
+        'Para Entrega',
+        'Finalizada'
+      ],
+      tasksStatus: [
+        'No Iniciado',
+        'Rev Jurídico',
+        'Rev Jurídico C',
+        'En Proceso',
+        'Por Firmar',
+        'Completado',
+        'Pendiente',
+        'Anulado'
+      ],
+      NombreTramite: '',
+      listaDetalles: [],
+      dialogoVisible: false,
       tableKey: 0,
       rep_tiposTramite: null,
       total: 0,
@@ -159,6 +337,48 @@ export default {
     }
   },
   methods: {
+    getDetalleList(row) {
+      this.dialogoVisible = true
+      this.NombreTramite = row.DscaTipoTramite
+      console.log(this.tiposTramite)
+      var OID = row.OID.map(dep => {
+        return dep.OID
+      })
+      this.$apollo.query({
+        query: tramitesMontoDetalles,
+        variables: {
+          OID: OID
+        },
+        error(error) {
+          this.error = JSON.stringify(error.message)
+        }
+      }).then(data => {
+        this.listaDetalles = data.data.OrdenTrabajo_Detalle.map(dep => {
+          var aux = {
+            TpServicio: dep.TipoServicio.TpServicio,
+            DscaTipoTramite: dep.TipoTramite.DscaTipoTramite,
+            StatusOT: dep.StatusOT,
+            CreadoEn: dep.CreadoEn,
+            FechaInscripcion: dep.FechaInscripcion,
+            FechaInicioTrabajo: dep.FechaInicioTrabajo,
+            FechaEstimadaEntrega: dep.FechaEstimadaEntrega,
+            FechaPospuestaEntrega: dep.FechaPospuestaEntrega,
+            FechaRealEntrega: dep.FechaRealEntrega,
+            Avaluo: dep.Avaluo,
+            AmountInvoiced: dep.AmountInvoiced,
+            FojasAdc: dep.FojasAdc,
+            Cantidad: dep.Cantidad,
+            CreaNombre: dep.usuarioByCreadopor == null ? '' : `${dep.usuarioByCreadopor.Nombres} ${dep.usuarioByCreadopor.Apellidos}`,
+            FechaFinalizacion: dep.Usuario_OTs.length === 0 ? '' : dep.Usuario_OTs[0].FechaFinalizacion,
+            NroOrden: dep.OrdenTrabajo_Cabecera.NroOrden,
+            Estado: dep.OrdenTrabajo_Cabecera.Estado,
+            Clinombre: dep.OrdenTrabajo_Cabecera.clienteByClientefactura == null ? '' : `${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombre} ${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos}`
+          }
+          return aux
+        })
+        console.log(this.listaDetalles)
+      })
+    },
     order(key) {
       var aux = null
       if (key === 'cant') {
@@ -211,7 +431,8 @@ export default {
             var aux = {
               DscaTipoTramite: tramite.DscaTipoTramite,
               Cantidad: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad,
-              AmountInvoiced: tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total
+              AmountInvoiced: tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total,
+              OID: tramite.OrdenTrabajo_Detalles_aggregate.nodes
             }
             this.rep_tiposTramite.push(aux)
             total.Cantidad += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad
@@ -282,12 +503,21 @@ export default {
       })
       this.rep_tiposTramite.splice(index, 1)
     },
-    handleDownload() {
+    handleDownload(ty) {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
-        const data = this.formatJson(filterVal, this.rep_tiposTramite)
+        var tHeader = []
+        var filterVal = []
+        var data
+        if (this.dialogoVisible) {
+          tHeader = ['Tipo de servicio', 'Tipo de tramite', 'Estatus', 'Creado en', 'Fecha de Inscripcion', 'Fecha de Inicio Trabajo', 'Fecha de Estimada de Entrega', 'Fecha de Pospuesta de Entrega', 'Fecha de Real de Entrega', 'Avaluo', 'Monto', 'Fojas Adicionales', 'Cantidad', 'Creado por', 'Fecha de Finalizacion', 'Nro Orden', 'Estado', 'Clinombre']
+          filterVal = ['TpServicio', 'DscaTipoTramite', 'StatusOT', 'CreadoEn', 'FechaInscripcion', 'FechaInicioTrabajo', 'FechaEstimadaEntrega', 'FechaPospuestaEntrega', 'FechaRealEntrega', 'Avaluo', 'AmountInvoiced', 'FojasAdc', 'Cantidad', 'CreaNombre', 'FechaFinalizacion', 'NroOrden', 'Estado', 'Clinombre']
+          data = this.formatJson(filterVal, this.listaDetalles)
+        } else {
+          tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
+          filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
+          data = this.formatJson(filterVal, this.rep_tiposTramite)
+        }
         excel.export_json_to_excel({
           header: tHeader,
           data,

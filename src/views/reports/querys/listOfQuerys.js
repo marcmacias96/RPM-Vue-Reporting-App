@@ -5,12 +5,15 @@ module.exports = {
     TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, DscaTipoTramite: {_ilike: $title}}, order_by: {DscaTipoTramite: asc}) {
       DscaTipoTramite
       OrdenTrabajo_Detalles_aggregate(where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
-          aggregate {
-            sum {
-              Cantidad
-            }
+        aggregate {
+          sum {
+            Cantidad
           }
         }
+        nodes {
+          OID
+        }
+      }
       ProformaFacturaDetalles_aggregate(where: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}) {
         aggregate {
           sum {
@@ -558,6 +561,44 @@ module.exports = {
       RepLegal
       TerceraEdad
       Discapacidad
+    }
+  }
+  `,
+  tramitesMontoDetalles: gql`
+  query ($OID: [Int!]){
+    OrdenTrabajo_Detalle (where:{OID:{_in: $OID}}){
+      TipoServicio {
+          TpServicio
+        }
+        TipoTramite {
+          DscaTipoTramite
+        }
+        StatusOT
+        CreadoEn
+        FechaInscripcion
+        FechaInicioTrabajo
+        FechaEstimadaEntrega
+        FechaPospuestaEntrega
+        FechaRealEntrega
+        Avaluo
+        AmountInvoiced
+        FojasAdc
+        Cantidad
+        usuarioByCreadopor {
+          Nombres
+          Apellidos
+        }
+        Usuario_OTs{
+        FechaFinalizacion
+        }
+        OrdenTrabajo_Cabecera {
+          NroOrden
+          Estado
+          clienteByClientefactura {
+            Nombres
+            Apellidos
+          }
+        }
     }
   }
   `

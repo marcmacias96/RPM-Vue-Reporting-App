@@ -112,13 +112,13 @@ export const constantRoutes = [
             path: 'taskAssignamentRealTime',
             name: 'taskAssignamentRealTime',
             component: () => import('@/views/reports/orders/taskAssignamentRT'),
-            meta: { title: 'Asignación de Tareas T.R', icon: 'table' }
+            meta: { title: 'Asignación de Tareas ', icon: 'table' }
           },
           {
             path: 'ordersAssignamentRealTime',
             name: 'ordersAssignamentRealTime',
             component: () => import('@/views/reports/orders/ordersAssignamentRT'),
-            meta: { title: 'Asignación de Ordenes T.R', icon: 'table' }
+            meta: { title: 'Asignación de Ordenes', icon: 'table' }
           },
           {
             path: 'orderDetailsByDateEnd',

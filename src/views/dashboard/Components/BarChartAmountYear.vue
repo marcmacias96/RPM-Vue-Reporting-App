@@ -115,52 +115,26 @@ export default {
       addtram: {
         query: AmountYear,
         variables() {
-          this.fechas = []
-          this.fechas[0] = moment().set({ 'month': 0, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[1] = moment().set({ 'month': 1, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[2] = moment().set({ 'month': 2, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[3] = moment().set({ 'month': 3, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[4] = moment().set({ 'month': 4, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[5] = moment().set({ 'month': 5, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[6] = moment().set({ 'month': 6, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[7] = moment().set({ 'month': 7, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[8] = moment().set({ 'month': 8, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[9] = moment().set({ 'month': 9, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[10] = moment().set({ 'month': 10, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[11] = moment().set({ 'month': 11, 'date': 1, 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
-          this.fechas[12] = moment().set({ 'month': 11, 'date': 31, 'hour': 23, 'minute': 59, 'second': 59 }).format('YYYY-MM-DD HH:mm:ss')
           return {
-            enero: this.fechas[0],
-            febrero: this.fechas[1],
-            marzo: this.fechas[2],
-            abril: this.fechas[3],
-            mayo: this.fechas[4],
-            junio: this.fechas[5],
-            julio: this.fechas[6],
-            agosto: this.fechas[7],
-            septiembre: this.fechas[8],
-            octubre: this.fechas[9],
-            noviembre: this.fechas[10],
-            diciembre: this.fechas[11],
-            enerof: this.fechas[12]
+            year: moment().format('YYYY')
           }
         },
         result({ data }) {
           this.chartData.labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
           var values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-          data.ProformaFactura.forEach(data => {
-            values[0] += data.enero.aggregate.sum.Total == null ? 0 : data.enero.aggregate.sum.Total
-            values[1] += data.febrero.aggregate.sum.Total == null ? 0 : data.febrero.aggregate.sum.Total
-            values[2] += data.marzo.aggregate.sum.Total == null ? 0 : data.marzo.aggregate.sum.Total
-            values[3] += data.abril.aggregate.sum.Total == null ? 0 : data.abril.aggregate.sum.Total
-            values[4] += data.mayo.aggregate.sum.Total == null ? 0 : data.mayo.aggregate.sum.Total
-            values[5] += data.junio.aggregate.sum.Total == null ? 0 : data.junio.aggregate.sum.Total
-            values[6] += data.julio.aggregate.sum.Total == null ? 0 : data.julio.aggregate.sum.Total
-            values[7] += data.agosto.aggregate.sum.Total == null ? 0 : data.agosto.aggregate.sum.Total
-            values[8] += data.septiembre.aggregate.sum.Total == null ? 0 : data.septiembre.aggregate.sum.Total
-            values[9] += data.octubre.aggregate.sum.Total == null ? 0 : data.octubre.aggregate.sum.Total
-            values[10] += data.noviembre.aggregate.sum.Total == null ? 0 : data.noviembre.aggregate.sum.Total
-            values[11] += data.diciembre.aggregate.sum.Total == null ? 0 : data.diciembre.aggregate.sum.Total
+          data.IngresosAnuales.forEach(data => {
+            values[0] += data.enero == null ? 0 : data.enero
+            values[1] += data.febrero == null ? 0 : data.febrero
+            values[2] += data.marzo == null ? 0 : data.marzo
+            values[3] += data.abril == null ? 0 : data.abril
+            values[4] += data.mayo == null ? 0 : data.mayo
+            values[5] += data.junio == null ? 0 : data.junio
+            values[6] += data.julio == null ? 0 : data.julio
+            values[7] += data.agosto == null ? 0 : data.agosto
+            values[8] += data.septiembre == null ? 0 : data.septiembre
+            values[9] += data.octubre == null ? 0 : data.octubre
+            values[10] += data.noviembre == null ? 0 : data.noviembre
+            values[11] += data.diciembre == null ? 0 : data.diciembre
           })
           this.chartData.data = values
         }

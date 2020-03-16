@@ -55,106 +55,115 @@ export const constantRoutes = [
       meta: { title: 'Dashboard', icon: 'dashboard' }
     }]
   },
-
   {
-    path: '/example',
+    path: '/reportes',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/reports/',
+    name: 'Reportes',
+    meta: { title: 'Reportes', icon: 'reports' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      },
-      {
-        path: 'complexTable',
-        name: 'ComplexTable',
-        component: () => import('@/views/table/complexTable'),
-        meta: { title: 'Reporte de tramites', icon: 'table' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
+        path: 'servicios',
+        name: 'servicios',
+        component: () => import('@/views/reports/services/index'),
+        meta: { title: 'Recaudación x Servicio', icon: 'table' },
         children: [
           {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
+            path: 'servicesAndStatus',
+            name: 'servicesAndStatus',
+            component: () => import('@/views/reports/services/servicesAndStatus'),
+            meta: { title: 'Recaudación x Servicio', icon: 'table' }
           }
         ]
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
+        path: 'tramites',
+        name: 'tramites',
+        component: () => import('@/views/reports/procedures/index'),
+        meta: { title: 'Recaudación x Tramite', icon: 'table' },
+        children: [
+          {
+            path: 'procedureAmount',
+            name: 'procedureAmount',
+            component: () => import('@/views/reports/procedures/procedureAmount'),
+            meta: { title: 'Recaudación x tramite', icon: 'table' }
+          },
+          {
+            path: 'proceduresAndStatus',
+            name: 'proceduresAndStatus',
+            component: () => import('@/views/reports/procedures/proceduresAndStatus'),
+            meta: { title: 'Tramites x Estado', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'orders',
+        name: 'orders',
+        component: () => import('@/views/reports/orders/index'),
+        meta: { title: 'Órdenes de Trabajo', icon: 'table' },
+        children: [
+          {
+            path: 'taskAssignamentRealTime',
+            name: 'taskAssignamentRealTime',
+            component: () => import('@/views/reports/orders/taskAssignamentRT'),
+            meta: { title: 'Asignación de Tareas ', icon: 'table' }
+          },
+          {
+            path: 'ordersAssignamentRealTime',
+            name: 'ordersAssignamentRealTime',
+            component: () => import('@/views/reports/orders/ordersAssignamentRT'),
+            meta: { title: 'Asignación de Ordenes', icon: 'table' }
+          },
+          {
+            path: 'orderDetailsByDateEnd',
+            name: 'orderDetailsByDateEnd',
+            component: () => import('@/views/reports/orders/orderDetailsByDateEnd'),
+            meta: { title: 'x Fecha Fin', icon: 'table' }
+          },
+          {
+            path: 'orderDetailsByDateStart',
+            name: 'orderDetailsByDateStart',
+            component: () => import('@/views/reports/orders/orderDetailsByDateStart'),
+            meta: { title: 'x Fecha Inicio', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'invoice',
+        name: 'invoice',
+        component: () => import('@/views/reports/invoice/index'),
+        meta: { title: 'Recaudación x Comprobante', icon: 'table' },
+        children: [
+          {
+            path: 'invoiceBalnce',
+            name: 'invoiceBalnce',
+            component: () => import('@/views/reports/invoice/invoiceBalance'),
+            meta: { title: 'Recaudación x Comprobante', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'visualReports',
+        name: 'VisualReports',
+        component: () => import('@/views/reports/invoice/index'),
+        meta: { title: 'Reportes Visuales', icon: 'Charts' },
+        children: [
+          {
+            path: 'rankingCer',
+            name: 'rankingCer',
+            component: () => import('@/views/reports/VisualReport/taskCompletedCer'),
+            meta: { title: 'Ranking Certificado', icon: 'rankings' }
+          },
+          {
+            path: 'rankingIns',
+            name: 'rankingIns',
+            component: () => import('@/views/reports/VisualReport/taskCompletedIns'),
+            meta: { title: 'Ranking Inscripciones', icon: 'rankings' }
+          }
+        ]
       }
     ]
   },
-
   {
     path: 'external-link',
     component: Layout,
@@ -165,7 +174,6 @@ export const constantRoutes = [
       }
     ]
   },
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true },
   {

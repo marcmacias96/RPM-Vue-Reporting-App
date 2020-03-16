@@ -1,11 +1,11 @@
 <template>
   <div class="dashboard-editor-container">
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:20px;">
+    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:12px;">
       <bar-chart-amount-year />
     </el-row>
 
-    <el-row :gutter="32">
+    <el-row :gutter="16">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <pie-chart-services />
@@ -22,6 +22,18 @@
         </div>
       </el-col>
     </el-row>
+    <el-row :gutter="16">
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper">
+          <pie-chart-task-in />
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper">
+          <pie-chart-task-cert />
+        </div>
+      </el-col>
+    </el-row>
 
   </div>
 </template>
@@ -31,13 +43,18 @@ import BarChartAmountYear from './Components/BarChartAmountYear'
 import BarChartAmountWeek from './Components/BarChartAmountWeek'
 import PieChartServices from './Components/PieChartServices'
 import PieChartProcedures from './Components/PieChartProcedures'
+import PieChartTaskIn from './Components/PieChartTaskIn'
+import PieChartTaskCert from './Components/BarChartTaskCert'
+
 export default {
   name: 'Dashboard',
   components: {
     BarChartAmountYear,
     PieChartServices,
     PieChartProcedures,
-    BarChartAmountWeek
+    BarChartAmountWeek,
+    PieChartTaskIn,
+    PieChartTaskCert
   },
   data() {
     return {
@@ -57,12 +74,6 @@ export default {
   padding: 10px;
   background-color: rgb(240, 242, 245);
   position: relative;
-  .github-corner {
-    position: absolute;
-    top: 0px;
-    border: 0;
-    right: 0;
-  }
   .chart-wrapper {
     background: #fff;
     padding: 10px 10px 0;

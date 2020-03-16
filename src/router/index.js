@@ -60,7 +60,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/reports/',
     name: 'Reportes',
-    meta: { title: 'Reportes', icon: 'example' },
+    meta: { title: 'Reportes', icon: 'reports' },
     children: [
       {
         path: 'servicios',
@@ -87,12 +87,6 @@ export const constantRoutes = [
             name: 'procedureAmount',
             component: () => import('@/views/reports/procedures/procedureAmount'),
             meta: { title: 'Recaudación x tramite', icon: 'table' }
-          },
-          {
-            path: 'typeOfProcedure',
-            name: 'TypeOfProcedure',
-            component: () => import('@/views/reports/procedures/typeOfProcedure'),
-            meta: { title: 'Rec x Tramite Filtro', icon: 'table' }
           },
           {
             path: 'proceduresAndStatus',
@@ -155,16 +149,16 @@ export const constantRoutes = [
         meta: { title: 'Reportes Visuales', icon: 'Charts' },
         children: [
           {
-            path: 'rankingUser',
-            name: 'rankingUser',
-            component: () => import('@/views/reports/orders/taskCompleted'),
-            meta: { title: 'Ranking por Departamento', icon: 'rankings' }
+            path: 'rankingCer',
+            name: 'rankingCer',
+            component: () => import('@/views/reports/VisualReport/taskCompletedCer'),
+            meta: { title: 'Ranking Certificado', icon: 'rankings' }
           },
           {
-            path: 'sd',
-            name: 'ss',
-            component: () => import('@/views/reports/orders/taskCompleted'),
-            meta: { title: 'Ranking por Departamento', icon: 'table' }
+            path: 'rankingIns',
+            name: 'rankingIns',
+            component: () => import('@/views/reports/VisualReport/taskCompletedIns'),
+            meta: { title: 'Ranking Inscripciones', icon: 'rankings' }
           }
         ]
       }

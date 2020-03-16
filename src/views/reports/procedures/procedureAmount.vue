@@ -13,7 +13,21 @@
       <el-select v-model="listQuery.type" placeholder="Orden" style="width: 140px" class="filter-item">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
-      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select
+        v-model="selected"
+        style="width:500px;"
+        multiple
+        filterable
+        collapse-tags
+        placeholder="Tramites"
+      >
+        <el-option
+          v-for="item in listaTramites"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
       <el-button
         v-waves
         class="filter-item"
@@ -21,7 +35,7 @@
         icon="el-icon-search"
         @click="handleFilter"
       >
-        Search
+        Buscar
       </el-button>
       <el-button
         v-waves
@@ -31,7 +45,7 @@
         icon="el-icon-download"
         @click="handleDownload"
       >
-        Export
+        Exportar
       </el-button>
       <el-button
         v-waves
@@ -229,7 +243,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramite, tramitesMontoDetalles } from '../querys/listOfQuerys'
+import { tiposTramite, tramitesMontoDetalles, tramiteSelect } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -259,6 +273,8 @@ export default {
   },
   data() {
     return {
+      selected: [],
+      listasTramites: [],
       ordersStatus: [
         'Creación',
         'Abierta',
@@ -372,7 +388,7 @@ export default {
             FechaFinalizacion: dep.Usuario_OTs.length === 0 ? '' : dep.Usuario_OTs[0].FechaFinalizacion,
             NroOrden: dep.OrdenTrabajo_Cabecera.NroOrden,
             Estado: dep.OrdenTrabajo_Cabecera.Estado,
-            Clinombre: dep.OrdenTrabajo_Cabecera.clienteByClientefactura == null ? '' : `${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombre} ${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos}`
+            Clinombre: dep.OrdenTrabajo_Cabecera.clienteByClientefactura == null ? '' : `${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Nombres} ${dep.OrdenTrabajo_Cabecera.clienteByClientefactura.Apellidos}`
           }
           return aux
         })
@@ -409,13 +425,15 @@ export default {
     },
     handleFilter() {
       if (this.listQuery.fechas != null) {
-        var nombre = '%' + this.listQuery.title + '%'
+        if (this.selected.length === 0) {
+          this.selected = this.listaFiltro
+        }
         this.$apollo.query({
           query: tiposTramite,
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
             fechaFin: this.listQuery.fechas[1].toString(),
-            title: nombre
+            filtro: this.selected
           },
           error(error) {
             this.error = JSON.stringify(error.message)
@@ -544,6 +562,11 @@ export default {
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
+    }
+  },
+  apollo: {
+    listaTramites: {
+      query: tramiteSelect
     }
   }
 }

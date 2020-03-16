@@ -85,7 +85,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { listaTramites, tiposTramiteFilt } from '../querys/listOfQuerys'
+import { tramiteSelect, tiposTramiteFilt } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -298,7 +298,7 @@ export default {
   },
   apollo: {
     listaTramites: {
-      query: listaTramites
+      query: tramiteSelect
     }
   }
 }

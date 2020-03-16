@@ -71,44 +71,44 @@
                   <span>{{ row.Nombre }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Creación" width="90px" align="center">
+              <el-table-column label="No iniciado" width="100px" align="center">
                 <template slot-scope="{ row }">
-                  <span>{{ row.Creacion }}</span>
+                  <span>{{ row.noIniciado }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Abierta" width="70px" align="center">
+              <el-table-column label="Revisión Juridico" width="87px" align="center">
                 <template slot-scope="{ row }">
-                  <span>{{ row.Abierta }}</span>
+                  <span>{{ row.revisionJuridico }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Por Cobrar" width="110px" align="center">
+              <el-table-column label="Rev. Jur. Compl." width="87px" align="center">
                 <template slot-scope="{ row }">
-                  <span>{{ row.porCobrar }}</span>
+                  <span>{{ row.revisionJuridicoCompleto }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Pagada" width="80px" align="center">
-                <template slot-scope="{ row }">
-                  <span>{{ row.Pagada }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="Anulada" width="80px" align="center">
-                <template slot-scope="{ row }">
-                  <span>{{ row.Anulada }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="En Proceso" width="105px" align="center">
+              <el-table-column label="En proceso" width="100px" align="center">
                 <template slot-scope="{ row }">
                   <span>{{ row.enProceso }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Lista Entrega" width="110px" align="center">
+              <el-table-column label="Por firmar" width="100px" align="center">
                 <template slot-scope="{ row }">
-                  <span>{{ row.paraEntrega }}</span>
+                  <span>{{ row.porFirmar }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="Finalizada" width="90px" align="center">
+              <el-table-column label="Completado" width="105px" align="center">
                 <template slot-scope="{ row }">
-                  <span>{{ row.Finalizada }}</span>
+                  <span>{{ row.completado }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Pendiente" width="110px" align="center">
+                <template slot-scope="{ row }">
+                  <span>{{ row.pendiente }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="Anulado" width="90px" align="center">
+                <template slot-scope="{ row }">
+                  <span>{{ row.anulado }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="Cantidad" width="90px" align="center">
@@ -130,7 +130,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramStatusFilt, listaTramites } from '../querys/listOfQuerys'
+import { tiposTramStatusFilt, tramiteSelect } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -220,6 +220,11 @@ export default {
   methods: {
     handleFilter() {
       if (this.listQuery.fechas != null) {
+        if (this.selected.length === 0) {
+          this.selected = this.listaTramites.map(tram => {
+            return tram.value
+          })
+        }
         this.$apollo.query({
           query: tiposTramStatusFilt,
           variables: {
@@ -235,45 +240,46 @@ export default {
           this.rep_tramites = data.data.TipoTramite
           var total = {
             Nombre: 'TOTAL',
-            Creacion: 0,
-            Abierta: 0,
-            porCobrar: 0,
-            Pagada: 0,
-            Anulada: 0,
+            noIniciado: 0,
+            revisionJuridico: 0,
+            revisionJuridicoCompleto: 0,
             enProceso: 0,
-            paraEntrega: 0,
-            Finalizada: 0,
+            porFirmar: 0,
+            completado: 0,
+            pendiente: 0,
+            anulado: 0,
             Total: 0,
             totalRecaudado: 0
           }
           this.rep_tramites.forEach(tramite => {
             var aux = {
               Nombre: tramite.DscaTipoTramite,
-              Creacion: tramite.creacion.aggregate.sum.Cantidad == null ? 0 : tramite.creacion.aggregate.sum.Cantidad,
-              Abierta: tramite.abierta.aggregate.sum.Cantidad == null ? 0 : tramite.abierta.aggregate.sum.Cantidad,
-              porCobrar: tramite.porCobrar.aggregate.sum.Cantidad == null ? 0 : tramite.porCobrar.aggregate.sum.Cantidad,
-              Pagada: tramite.pagada.aggregate.sum.Cantidad == null ? 0 : tramite.pagada.aggregate.sum.Cantidad,
-              Anulada: tramite.anulada.aggregate.sum.Cantidad == null ? 0 : tramite.anulada.aggregate.sum.Cantidad,
+              noIniciado: tramite.noIniciado.aggregate.sum.Cantidad == null ? 0 : tramite.noIniciado.aggregate.sum.Cantidad,
+              revisionJuridico: tramite.revisionJuridico.aggregate.sum.Cantidad == null ? 0 : tramite.revisionJuridico.aggregate.sum.Cantidad,
+              revisionJuridicoCompleto: tramite.revisionJuridicoCompleto == null ? 0 : tramite.revisionJuridicoCompleto.aggregate.sum.Cantidad,
               enProceso: tramite.enProceso.aggregate.sum.Cantidad == null ? 0 : tramite.enProceso.aggregate.sum.Cantidad,
-              paraEntrega: tramite.paraEntrega.aggregate.sum.Cantidad == null ? 0 : tramite.paraEntrega.aggregate.sum.Cantidad,
-              Finalizada: tramite.finalizada.aggregate.sum.Cantidad == null ? 0 : tramite.finalizada.aggregate.sum.Cantidad,
+              porFirmar: tramite.porFirmar.aggregate.sum.Cantidad == null ? 0 : tramite.porFirmar.aggregate.sum.Cantidad,
+              completado: tramite.completado.aggregate.sum.Cantidad == null ? 0 : tramite.completado.aggregate.sum.Cantidad,
+              pendiente: tramite.pendiente.aggregate.sum.Cantidad == null ? 0 : tramite.pendiente.aggregate.sum.Cantidad,
+              anulado: tramite.anulado.aggregate.sum.Cantidad == null ? 0 : tramite.anulado.aggregate.sum.Cantidad,
               Total: tramite.total.aggregate.sum.Cantidad == null ? 0 : tramite.total.aggregate.sum.Cantidad,
               totalRecaudado: tramite.totalRecaudado.aggregate.sum.Total == null ? 0 : tramite.totalRecaudado.aggregate.sum.Total
             }
-            total.Creacion += aux.Creacion
-            total.Abierta += aux.Abierta
-            total.porCobrar += aux.porCobrar
-            total.Pagada += aux.Pagada
-            total.Anulada += aux.Anulada
+            total.noIniciado += aux.noIniciado
+            total.revisionJuridico += aux.revisionJuridico
+            total.revisionJuridicoCompleto += aux.revisionJuridicoCompleto
             total.enProceso += aux.enProceso
-            total.paraEntrega += aux.paraEntrega
-            total.Finalizada += aux.Finalizada
+            total.porFirmar += aux.porFirmar
+            total.completado += aux.completado
+            total.pendiente += aux.pendiente
+            total.anulado += aux.anulado
             total.Total += aux.Total
             total.totalRecaudado += aux.totalRecaudado
             this.tramites.push(aux)
           })
           this.total = total.totalRecaudado
           this.tramites.push(total)
+          this.selected = []
         })
       }
     },
@@ -362,7 +368,7 @@ export default {
   },
   apollo: {
     listaTramites: {
-      query: listaTramites
+      query: tramiteSelect
     }
   }
 }

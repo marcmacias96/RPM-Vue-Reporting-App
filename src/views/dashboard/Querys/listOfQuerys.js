@@ -14,8 +14,26 @@ module.exports = {
         }
     }
     `,
-  AmountYear: gql `
+  SubAmountYear: gql `
     subscription ($year: float8) {
+    IngresosAnuales(where: {year: {_eq: $year}}){
+        enero
+        febrero
+        marzo
+        abril
+        mayo
+        junio
+        julio
+        agosto
+        septiembre
+        octubre
+        noviembre
+        diciembre
+    }
+    }
+    `,
+  QueryAmountYear: gql `
+    query ($year: float8) {
     IngresosAnuales(where: {year: {_eq: $year}}){
         enero
         febrero
@@ -86,5 +104,22 @@ module.exports = {
     }
     }
     }
+  `,
+  penAndCompByDep: gql `
+  subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
+    Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+        pendientes: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 6}}}) {
+        aggregate {
+            count
+        }
+        }
+        completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 5}}}) {
+        aggregate {
+            count
+        }
+        }
+    }
+    }  
   `
+
 }

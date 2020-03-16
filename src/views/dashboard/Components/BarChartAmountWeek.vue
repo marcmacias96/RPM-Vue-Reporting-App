@@ -58,6 +58,10 @@ export default {
     this.chart = null
   },
   methods: {
+    decimal(num, deci) {
+      var valor = Math.pow(10, deci || 2)
+      return parseInt(num * valor, 10) / valor
+    },
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
@@ -141,7 +145,9 @@ export default {
             values[3] += data.jueves.aggregate.sum.Total == null ? 0 : data.jueves.aggregate.sum.Total
             values[4] += data.viernes.aggregate.sum.Total == null ? 0 : data.viernes.aggregate.sum.Total
           })
-          this.chartData.data = values
+          this.chartData.data = values.map(val => {
+            return this.decimal(val, 2)
+          })
         }
       }
     }

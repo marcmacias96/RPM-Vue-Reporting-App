@@ -1,16 +1,9 @@
 <template>
-  <el-tabs stretch :v-model="departamento" tab-position="right" style="height: 500px;">
-    <el-tab-pane label="Certificados">
-      <div class="chart-container">
-        <chart height="100%" width="100%" :data="chartData" />
-      </div>
-    </el-tab-pane>
-    <el-tab-pane label="Inscripciones">
-      <div class="chart-container">
-        <chart height="100%" width="100%" :data="chartData" />
-      </div>
-    </el-tab-pane>
-  </el-tabs>
+  <div class="app-container">
+    <div class="chart-container">
+      <chart height="100%" width="100%" :data="chartData" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -22,7 +15,14 @@ export default {
   components: { Chart },
   data() {
     return {
-      departamento: '',
+      selected: '',
+      options: [{
+        value: 'Certificados',
+        label: 'Certificados'
+      }, {
+        value: 'Inscripciones',
+        label: 'Inscripciones'
+      }],
       chartData: {
         labels: [],
         data: []
@@ -39,9 +39,9 @@ export default {
           this.fechas[0] = moment().set({ 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
           this.fechas[1] = moment().set({ 'hour': 23, 'minute': 59, 'second': 59 }).format('YYYY-MM-DD HH:mm:ss')
           return {
-            fechaInicio: this.fechas[0],
-            fechaFin: this.fechas[1],
-            departamento: `%${this.departamento}%`
+            fechaInicio: '2020-03-12 00:00:00',
+            fechaFin: '2020-03-12 23:59:59',
+            departamento: '%cert%'
           }
         },
         result({ data }) {

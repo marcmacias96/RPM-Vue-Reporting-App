@@ -5,7 +5,7 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
-import { AmountOfProcedures } from '../Querys/listOfQuerys'
+import { penAndCompByDep } from '../Querys/listOfQuerys'
 import resize from './mixins/resize'
 import moment from 'moment'
 export default {
@@ -60,7 +60,7 @@ export default {
     setOptions(Data) {
       this.chart.setOption({
         title: {
-          text: 'Recaudación x Tramite',
+          text: 'Tareas Inscripciones',
           left: 'center',
           align: 'right'
         },
@@ -91,38 +91,34 @@ export default {
   apollo: {
     $subscribe: {
       addtram: {
-        query: AmountOfProcedures,
+        query: penAndCompByDep,
         variables() {
           this.fechas = []
           this.fechas[0] = moment().set({ 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
           this.fechas[1] = moment().set({ 'hour': 23, 'minute': 59, 'second': 59 }).format('YYYY-MM-DD HH:mm:ss')
           return {
             fechaInicio: this.fechas[0],
-            fechaFin: this.fechas[1]
+            fechaFin: this.fechas[1],
+            departamento: '%insc%'
           }
         },
         result({ data }) {
-          data.TipoTramite.sort(function(a, b) {
-            if (a.ProformaFacturaDetalles_aggregate.aggregate.sum.Total < b.ProformaFacturaDetalles_aggregate.aggregate.sum.Total) {
-              return 1
+          var sumatoria = [
+            {
+              name: 'Pendientes',
+              value: 0
+            },
+            {
+              name: 'Completados',
+              value: 0
             }
-            if (a.ProformaFacturaDetalles_aggregate.aggregate.sum.Total > b.ProformaFacturaDetalles_aggregate.aggregate.sum.Total) {
-              return -1
-            }
-            return 0
+          ]
+          data.Usuario.forEach(usu => {
+            sumatoria[0].value += usu.pendientes.aggregate.count
+            sumatoria[1].value += usu.completado.aggregate.count
           })
-          this.chartData.labels = []
-          this.chartData.data = []
-          for (let index = 0; index < 5; index++) {
-            if (data.TipoTramite[index] !== undefined) {  
-              this.chartData.labels.push(data.TipoTramite[index].DscaTipoTramite)
-              var dat = {
-                name: data.TipoTramite[index].DscaTipoTramite,
-                value: data.TipoTramite[index].ProformaFacturaDetalles_aggregate.aggregate.sum.Total
-              }
-              this.chartData.data.push(dat)
-            }
-          }
+          this.chartData.data = sumatoria
+          this.chartData.labels = ['Pendientes', 'Completados']
         }
       }
     }

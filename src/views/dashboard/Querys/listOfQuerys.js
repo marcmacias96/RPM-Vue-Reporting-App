@@ -118,6 +118,16 @@ module.exports = {
             count
         }
         }
+        porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 4}}}) {
+        aggregate {
+            count
+        }
+        }
+        noIniciada: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 0}}}) {
+        aggregate {
+            count
+        }
+        }
     }
     }  
   `

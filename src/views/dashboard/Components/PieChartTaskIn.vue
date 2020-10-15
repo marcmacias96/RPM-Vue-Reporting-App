@@ -60,7 +60,7 @@ export default {
     setOptions(Data) {
       this.chart.setOption({
         title: {
-          text: 'Tareas Inscripciones',
+          text: 'Tareas Inscripciones x fecha fin',
           left: 'center',
           align: 'right'
         },
@@ -99,7 +99,7 @@ export default {
           return {
             fechaInicio: this.fechas[0],
             fechaFin: this.fechas[1],
-            departamento: '%insc%'
+            departamento: '%inscrip%'
           }
         },
         result({ data }) {
@@ -111,14 +111,24 @@ export default {
             {
               name: 'Completados',
               value: 0
+            },
+            {
+              name: 'Por Firmar',
+              value: 0
+            },
+            {
+              name: 'No Iniciado',
+              value: 0
             }
           ]
           data.Usuario.forEach(usu => {
             sumatoria[0].value += usu.pendientes.aggregate.count
             sumatoria[1].value += usu.completado.aggregate.count
+            sumatoria[2].value += usu.porFirmar.aggregate.count
+            sumatoria[3].value += usu.noIniciada.aggregate.count
           })
           this.chartData.data = sumatoria
-          this.chartData.labels = ['Pendientes', 'Completados']
+          this.chartData.labels = ['Pendientes', 'Completados', 'Por firmar', 'No Iniciado']
         }
       }
     }

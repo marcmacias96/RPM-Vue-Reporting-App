@@ -75,7 +75,7 @@
         </el-table-column>
         <el-table-column label="Creación" width="90px" align="center">
           <template slot-scope="{ row }">
-            <span>{{ row.Creacion}}</span>
+            <span>{{ row.Creacion }}</span>
           </template>
         </el-table-column>
         <el-table-column label="Abierta" width="70px" align="center">
@@ -105,7 +105,7 @@
         </el-table-column>
         <el-table-column label="Lista Entrega" width="110px" align="center">
           <template slot-scope="{ row }">
-            <span>{{ row.paraEntrega | moment("YYYY-MM-DD hh:mm:ss")}}</span>
+            <span>{{ row.paraEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column label="Finalizada" width="90px" align="center">
@@ -391,6 +391,8 @@ export default {
     },
     handleFilter() {
       if (this.listQuery.fechas != null) {
+        console.log(this.listQuery.fechas[0].toString())
+        console.log(this.listQuery.fechas[1].toString())
         this.$apollo.query({
           query: tiposServicios,
           variables: {
@@ -401,6 +403,7 @@ export default {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
+          console.log('holaaa', data)
           this.listaServicios = data.data.rep_tiposServicios
           console.log(this.listaServicios)
           this.total = this.listaServicios[this.listaServicios.length - 1].totalRecaudado

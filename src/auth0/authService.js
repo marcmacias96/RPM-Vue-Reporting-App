@@ -42,7 +42,6 @@ class AuthService extends EventEmitter {
   handleAuthentication() {
     return new Promise((resolve, reject) => {
       webAuth.parseHash((err, authResult) => {
-        console.log(authResult)
         if (err) {
           reject(err);
         } else {
@@ -89,13 +88,13 @@ class AuthService extends EventEmitter {
     this.idToken = authResult.idToken;
     this.profile = authResult.idTokenPayload;
     this.sub = authResult.sub
-
     // Convert the expiry time from seconds to milliseconds,
     // required by the Date constructor
     this.tokenExpiry = new Date(this.profile.exp * 1000);
 
     localStorage.setItem(localStorageKey, "true");
     localStorage.setItem("apollo-token", authResult.idToken);
+    
 
     this.emit(loginEvent, {
       loggedIn: true,
@@ -106,15 +105,17 @@ class AuthService extends EventEmitter {
   }
 
   renewTokens() {
+
     return new Promise((resolve, reject) => {
       if (localStorage.getItem(localStorageKey) !== "true") {
         return reject("Not logged in");
       }
-      
       webAuth.checkSession({}, (err, authResult) => {
         if (err) {
           localStorage.setItem(localStorageKey, "false");
           localStorage.removeItem("apollo-token");
+          console.log(err),
+          console.log(authResult)
           reject(err);
         } else {
           this.localLogin(authResult);

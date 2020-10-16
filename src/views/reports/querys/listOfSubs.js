@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
-module.exports = {
-  usuarioTaksStatusByDepSub: gql`
+
+var usuarioTaksStatusByDepSub = gql`
     subscription ($fechaInicio: timestamp!, $fechaFin: timestamp!, $departamento: String!) {
       Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}}, order_by: {Apellidos: asc}) {
         Nombres
@@ -55,8 +55,8 @@ module.exports = {
         }
       }
     }
-  `,
-  usuarioOTsStatusByDepSub: gql`
+  `
+var usuarioOTsStatusByDepSub = gql`
   subscription usuarioOTsStatusByDepSub($fechaInicio: timestamp!, $fechaFin: timestamp!, $departamento: String!) {
       Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}}, order_by: {Apellidos: asc}) {
         Nombres
@@ -112,4 +112,8 @@ module.exports = {
       }
     }
   `
+
+export {
+  usuarioTaksStatusByDepSub,
+  usuarioOTsStatusByDepSub
 }

@@ -16,6 +16,6 @@ export default {
           authService.removeListener('loginEvent', this.handleLoginEvent)
         }
       }
-    });
+    })
   }
-};
+}

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
-module.exports = {
-  AmountOfServices: gql `
+
+var AmountOfServices = gql `
     subscription ($fechaInicio: timestamp, $fechaFin: timestamp) {
         TipoServicio (where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
             TpServicio
@@ -13,8 +13,8 @@ module.exports = {
             }
         }
     }
-    `,
-  SubAmountYear: gql `
+`
+var SubAmountYear = gql `
     subscription ($year: float8) {
     IngresosAnuales(where: {year: {_eq: $year}}){
         enero
@@ -31,8 +31,8 @@ module.exports = {
         diciembre
     }
     }
-    `,
-  QueryAmountYear: gql `
+`
+var QueryAmountYear = gql `
     query ($year: float8) {
     IngresosAnuales(where: {year: {_eq: $year}}){
         enero
@@ -49,8 +49,8 @@ module.exports = {
         diciembre
     }
     }
-    `,
-  AmountOfProcedures: gql `
+`
+var AmountOfProcedures = gql `
     subscription ($fechaInicio: timestamp, $fechaFin: timestamp) {
         TipoTramite (where: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
             DscaTipoTramite
@@ -63,8 +63,8 @@ module.exports = {
             }
         }
     }
-    `,
-  AmountWeek: gql `
+`
+var AmountWeek = gql `
   subscription($lunes: timestamp!, $martes: timestamp!, $miercoles: timestamp!, $jueves: timestamp!, $viernes: timestamp!, $viernesf: timestamp! ){
     ProformaFactura(where:{FacturadoEn:{_gte:$lunes, _lt:$viernesf }}){
         lunes: ProformaFacturaDetalles_aggregate(where:{FacturadoEn:{_gte: $lunes,_lt: $martes}}){
@@ -104,8 +104,8 @@ module.exports = {
     }
     }
     }
-  `,
-  penAndCompByDep: gql `
+  `
+var penAndCompByDep = gql `
   subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
     Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
         pendientes: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 6}}}) {
@@ -132,4 +132,5 @@ module.exports = {
     }  
   `
 
-}
+export { AmountOfServices, SubAmountYear, QueryAmountYear, AmountOfProcedures, AmountWeek, penAndCompByDep }
+

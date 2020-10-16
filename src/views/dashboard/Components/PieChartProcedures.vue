@@ -114,7 +114,7 @@ export default {
           this.chartData.labels = []
           this.chartData.data = []
           for (let index = 0; index < 5; index++) {
-            if (data.TipoTramite[index] !== undefined) {  
+            if (data.TipoTramite[index] !== undefined) {
               this.chartData.labels.push(data.TipoTramite[index].DscaTipoTramite)
               var dat = {
                 name: data.TipoTramite[index].DscaTipoTramite,

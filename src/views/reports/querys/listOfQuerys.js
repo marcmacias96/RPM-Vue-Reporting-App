@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
-module.exports = {
-  tiposTramite: gql`
+
+var tiposTramite = gql`
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $filtro: [String!]) {
     TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, Codigo: {_in: $filtro}}, order_by: {DscaTipoTramite: asc}) {
       DscaTipoTramite
@@ -23,8 +23,8 @@ module.exports = {
       }
     }
   }
-  `,
-  tramitesUsuario: gql`
+  `
+var tramitesUsuario = gql`
   query ($fechaInicio: String!, $fechaFin: String!, $departamento: String!){
     rep_departamento(fechaInicio: $fechaInicio, fechaFin: $fechaFin, departamento: $departamento){
       Nombre
@@ -39,8 +39,8 @@ module.exports = {
       Total
     }
   }
-  `,
-  tiposServicios: gql `
+  `
+var tiposServicios = gql `
    query rep_tiposServicios($fechaInicio: String!, $fechaFin: String!) {
     rep_tiposServicios(fechaFin: $fechaFin, fechaInicio: $fechaInicio){
       Nombre
@@ -62,16 +62,16 @@ module.exports = {
       }
     }
   }
- `,
-  tramiteSelect: gql`
+ `
+var tramiteSelect = gql`
    query lista_tramites{
     listaTramites(where: {value: {_neq: "null"}}, order_by: {label: asc}) {
       value
       label
     }
   }
- `,
-  tiposTramiteFilt: gql`
+ `
+var tiposTramiteFilt = gql`
     query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $tramites: [String!]!) {
       TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}, OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 3}}, {Estado: {_eq: 5}}, {Estado: {_eq: 6}}, {Estado: {_eq: 7}}]}}, Codigo: {_in: $tramites}}, order_by: {}) {
         DscaTipoTramite
@@ -92,8 +92,8 @@ module.exports = {
         }
       }
     }
- `,
-  tiposTramStatusFilt: gql`
+ `
+var tiposTramStatusFilt = gql`
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $tramites: [String!]!) {
     TipoTramite(where: {OrdenTrabajo_Detalles: {ProformaFacturaDetalles: {FacturadoEn: {_gte: $fechaInicio, _lte: $fechaFin}}}, Codigo: {_in: $tramites}}) {
       DscaTipoTramite
@@ -169,8 +169,8 @@ module.exports = {
       }
     }
   }
- `,
-  usuarioTaksStatusByDep: gql `
+ `
+var usuarioTaksStatusByDep = gql `
     query usuarioTaksStatusByDep($fechaInicio: timestamp!, $fechaFin: timestamp!, $departamento: String!) {
       Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}}, order_by: {Apellidos: asc}) {
         Nombres
@@ -233,8 +233,8 @@ module.exports = {
         }
       }
     }
-  `,
-  usuarioOTsStatusByDep: gql`
+  `
+var usuarioOTsStatusByDep = gql`
   query usuarioOtsStatusByDep($fechaInicio: timestamp!, $fechaFin: timestamp!, $departamento: String!) {
       Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaRegistro: {_gte: $fechaInicio, _lte: $fechaFin}}}, order_by: {Apellidos: asc}) {
         Nombres
@@ -289,8 +289,8 @@ module.exports = {
         }
       }
     }
-  `,
-  listaDetallesServAndStat: gql`
+  `
+var listaDetallesServAndStat = gql`
   query  ($orders: [Int!]!){
     OrdenTrabajo_Detalle(where: {OID: {_in: $orders}}) {
       TipoServicio {
@@ -327,8 +327,8 @@ module.exports = {
       }
     }
   }
-  `,
-  listaDetallesTaskAsig: gql `
+  `
+var listaDetallesTaskAsig = gql `
   query($fechaInicio: String!, $fechaFin: String!, $cedula: String!){
     lista_servicios(fechaFin: $fechaFin, fechaInicio: $fechaInicio, cedula: $cedula){
       Cantidad
@@ -363,8 +363,8 @@ module.exports = {
       }
     }
   }
-  `,
-  invoiceBalance: gql`
+  `
+var invoiceBalance = gql`
   query rep_comprobante($fechaInicio: timestamp!, $fechaFin: timestamp!, $factura: String!, $tipo: String!, $usuario: String!, $offset: Int!, $limit: Int!) {
     ProformaFacturaDetalle(where: {ProformaFactura: {FacturadoEn: {_lte: $fechaFin, _gte: $fechaInicio}, NroFactura: {_ilike: $factura, _nilike: $tipo}, usuarioByCreadopor: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}]}}}, offset: $offset, limit: $limit, order_by: {FacturadoEn: asc}) {
       ProformaFactura {
@@ -396,8 +396,8 @@ module.exports = {
       }
     }
   }
-  `,
-  userRankingTasks: gql `
+  `
+var userRankingTasks = gql `
   subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
     Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
       Nombres
@@ -419,8 +419,8 @@ module.exports = {
       }
     }
   }
-  `,
-  orderDetailsByDateEnd: gql `
+  `
+var orderDetailsByDateEnd = gql `
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String) {
     OrdenTrabajo_Detalle(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : {Departamento : {IdDpto : {_ilike : $departamento}}} }, limit: $limit, offset: $offset) {
       TipoServicio {
@@ -474,8 +474,8 @@ module.exports = {
       }
     }
   }
-  `,
-  orderDetailsByDateStart: gql `
+  `
+var orderDetailsByDateStart = gql `
   query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
     OrdenTrabajo_Detalle(where: {CreadoEn: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}}, limit: $limit, offset: $offset) {
       TipoServicio {
@@ -529,8 +529,8 @@ module.exports = {
       }
     }
   }
-  `,
-  detellesExcel: gql `
+  `
+var detellesExcel = gql `
   query($fechaInicio: String!, $fechaFin: String!, $status: [Int]){
     detalles_excel(fechaFin: $fechaFin, fechaInicio: $fechaInicio, status: $status){
       Nro
@@ -563,8 +563,8 @@ module.exports = {
       Discapacidad
     }
   }
-  `,
-  tramitesMontoDetalles: gql`
+  `
+var tramitesMontoDetalles = gql`
   query ($OID: [Int!]){
     OrdenTrabajo_Detalle (where:{OID:{_in: $OID}}){
       TipoServicio {
@@ -602,4 +602,22 @@ module.exports = {
     }
   }
   `
+
+export {
+  tiposTramite,
+  tramitesUsuario,
+  tiposServicios,
+  tramiteSelect,
+  tiposTramiteFilt,
+  tiposTramStatusFilt,
+  usuarioTaksStatusByDep,
+  usuarioOTsStatusByDep,
+  listaDetallesServAndStat,
+  listaDetallesTaskAsig,
+  invoiceBalance,
+  userRankingTasks,
+  orderDetailsByDateEnd,
+  orderDetailsByDateStart,
+  detellesExcel,
+  tramitesMontoDetalles
 }

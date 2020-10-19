@@ -34,6 +34,16 @@
       </el-button>
       <el-button
         v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >
+        Exportar
+      </el-button>
+      <el-button
+        v-waves
         class="total-container"
         type="info"
       > Total Recaudado $ {{ formatPrice(total) }} </el-button>
@@ -78,7 +88,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="Creado Por"
+          label="Facturado Por"
           min-width="200px"
         >
           <template slot-scope="{ row }">
@@ -305,20 +315,34 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
-        const data = this.formatJson(filterVal)
+        const tHeader = ['Comprobante', 'Fecha-Hora', 'Cedula', 'Contribuyente', 'Facturado Por', 'Cantidad', 'Descuento', 'Valor Unitario', 'IVA', 'Total']
+        const filterVal = ['comprobante', 'date', 'ID', 'contributor', 'InvoicedBy', 'quantity', 'discount', 'unitValue', 'IVA', 'total']
+        var listToExport = this.rep_comprobantes.map(list => {
+          return {
+            comprobante: list.ProformaFactura.NroFactura,
+            date: list.ProformaFactura.FacturadoEn,
+            ID: list.ProformaFactura.clienteByCliente.CedRuc,
+            contributor: list.ProformaFactura.clienteByCliente.Nombres + ' ' + list.ProformaFactura.clienteByCliente.Apellidos + list.ProformaFactura.clienteByCliente.NombreEmpresa,
+            InvoicedBy: list.ProformaFactura.usuarioByCreadopor.Nombres + ' ' + list.ProformaFactura.usuarioByCreadopor.Apellidos,
+            quantity: list.CantidadFactura,
+            discount: list.Dscto,
+            unitValue: list.ValorUnitario,
+            IVA: list.Impuesto,
+            total: list.Total
+          }
+        }
+        )
+        const data = this.formatJson(filterVal, listToExport)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'Reporte-tramites'
+          filename: 'Reporte-caja-comprobantes'
         })
         this.downloadLoading = false
       })
     },
-    formatJson(filterVal) {
-      console.log('hola')
-      return this.rep_comprobantes.map(v =>
+    formatJson(filterVal, listToExport) {
+      return listToExport.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])

@@ -24,7 +24,16 @@
         class="total-container"
         type="info"
       > Total Recaudado $ {{ formatPrice(total) }} </el-button>
-    </div>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >
+        Exportar
+      </el-button></div>
     <div class="table-container">
       <el-table
         :key="tableKey"
@@ -222,7 +231,7 @@
           width="160px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.Usuario_OTs[0].FechaFinalizacion | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+            <span>{{ row.FechaFinalizacion | moment("YYYY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -403,7 +412,6 @@ export default {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          console.log('holaaa', data)
           this.listaServicios = data.data.rep_tiposServicios
           console.log(this.listaServicios)
           this.total = this.listaServicios[this.listaServicios.length - 1].totalRecaudado

@@ -312,7 +312,7 @@ export default {
           variables: {
             fechaInicio: this.listQuery.fechas[0],
             fechaFin: this.listQuery.fechas[1],
-            limit: 1000,
+            limit: this.listQuery.limit,
             offset: this.listQuery.offset,
             status: this.selected,
             departamento: this.selectedDep[0]

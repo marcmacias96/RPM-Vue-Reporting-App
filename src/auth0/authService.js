@@ -2,7 +2,7 @@
 import auth0 from "auth0-js";
 import { EventEmitter } from "events";
 import authConfig from "../../auth_config.json";
-import { onLogout } from '../vue-apollo'
+
 
 const webAuth = new auth0.WebAuth({
   domain: authConfig.domain,

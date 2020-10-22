@@ -108,7 +108,6 @@
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { usuarioOTsStatusByDep } from '../querys/listOfQuerys'
-import { usuarioOTsStatusByDepSub } from '../querys/listOfSubs'
 import BarChart from '../Components/charts/BarChart'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -189,13 +188,9 @@ export default {
       downloadLoading: false
     }
   },
-  mounted() {
-    this.$apollo.subscriptions.addtram.skip = true
-  },
   methods: {
     handleFilter() {
       if (this.listQuery.fechas != null) {
-        this.$apollo.subscriptions.addtram.start()
         this.$apollo.query({
           query: usuarioOTsStatusByDep,
           variables: {
@@ -323,45 +318,6 @@ export default {
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
-    }
-  },
-  apollo: {
-    $subscribe: {
-      addtram: {
-        query: usuarioOTsStatusByDepSub,
-        variables() {
-          if (this.listQuery.fechas != null) {
-            return {
-              fechaInicio: this.listQuery.fechas[0].toString(),
-              fechaFin: this.listQuery.fechas[1].toString(),
-              departamento: this.listQuery.type
-            }
-          }
-        },
-        result({ data }) {
-          var mostrar = {}
-          mostrar.nombres = []
-          mostrar.totales = []
-          data.Usuario.forEach(tramites => {
-            var aux = {
-              Nombres: tramites.Apellidos + ' ' + tramites.Nombres,
-              Creacion: tramites.creacion.aggregate.count,
-              Abierta: tramites.abierta.aggregate.count,
-              porCobrar: tramites.porCobrar.aggregate.count,
-              Pagada: tramites.pagada.aggregate.count,
-              Anulada: tramites.anulada.aggregate.count,
-              enProceso: tramites.enProceso.aggregate.count,
-              paraEntrega: tramites.lParaEntrega.aggregate.count,
-              Finalizada: tramites.finalizado.aggregate.count,
-              Total: tramites.total.aggregate.count
-            }
-            this.rep_tramitesUsuario.push(aux)
-            mostrar.nombres.push(tramites.Apellidos + ' ' + tramites.Nombres)
-            mostrar.totales.push(tramites.total.aggregate.count)
-          })
-          this.barChartData = mostrar
-        }
-      }
     }
   }
 }

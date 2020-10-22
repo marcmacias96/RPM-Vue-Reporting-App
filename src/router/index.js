@@ -80,7 +80,7 @@ export const constantRoutes = [
         path: 'tramites',
         name: 'tramites',
         component: () => import('@/views/reports/procedures/index'),
-        meta: { title: 'Recaudación x Tramite', icon: 'table' },
+        meta: { title: 'Recaudación por Trámites Generales', icon: 'table' },
         children: [
           {
             path: 'procedureAmount',
@@ -112,19 +112,27 @@ export const constantRoutes = [
             path: 'ordersAssignamentRealTime',
             name: 'ordersAssignamentRealTime',
             component: () => import('@/views/reports/orders/ordersAssignamentRT'),
-            meta: { title: 'Asignación de Ordenes', icon: 'table' }
+            meta: { title: 'Estado de Ordenes Asignación', icon: 'table' }
+          }
+        ]
+      },
+      {
+        path: 'tasks',
+        name: 'tasks',
+        component: () => import('@/views/reports/tasks/index'),
+        meta: { title: 'Lista de Tareas', icon: 'table' },
+        children: [
+          {
+            path: 'orderDetailsByDateStart',
+            name: 'orderDetailsByDateStart',
+            component: () => import('@/views/reports/tasks/orderDetailsByDateStart'),
+            meta: { title: 'x Fecha Inicio', icon: 'table' }
           },
           {
             path: 'orderDetailsByDateEnd',
             name: 'orderDetailsByDateEnd',
-            component: () => import('@/views/reports/orders/orderDetailsByDateEnd'),
-            meta: { title: 'x Fecha Fin', icon: 'table' }
-          },
-          {
-            path: 'orderDetailsByDateStart',
-            name: 'orderDetailsByDateStart',
-            component: () => import('@/views/reports/orders/orderDetailsByDateStart'),
-            meta: { title: 'x Fecha Inicio', icon: 'table' }
+            component: () => import('@/views/reports/tasks/orderDetailsByDateEnd'),
+            meta: { title: 'x Fecha Finalización', icon: 'table' }
           }
         ]
       },
@@ -138,7 +146,7 @@ export const constantRoutes = [
             path: 'invoiceBalnce',
             name: 'invoiceBalnce',
             component: () => import('@/views/reports/invoice/invoiceBalance'),
-            meta: { title: 'Recaudación x Comprobante', icon: 'table' }
+            meta: { title: 'Recaudación por tipo Comprobante', icon: 'table' }
           }
         ]
       },
@@ -161,10 +169,33 @@ export const constantRoutes = [
             meta: { title: 'Ranking Inscripciones', icon: 'rankings' }
           }
         ]
+      } /* ,
+      {
+        path: 'Reportes_luis',
+        name: 'Reportes_luis',
+        component: () => import('@/views/reports/alcabalas/index'),
+        meta: { title: 'Reportes Municipio', icon: 'table' },
+        children: [
+          {
+            path: 'alcabalas',
+            name: 'alcabalas',
+            component: () => import('@/views/reports/alcabalas/alcabalas'),
+            meta: { title: 'Reporte Alcabalas', icon: 'table' }
+          }
+        ]
+      } */
+    ]
+  },
+  {
+    path: 'external-link',
+    component: Layout,
+    children: [
+      {
+        path: 'http://appsigre5.registropmanta.gob.ec/',
+        meta: { title: 'Sigre', icon: 'link' }
       }
     ]
   },
-  // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true },
   {
     path: '/callback',

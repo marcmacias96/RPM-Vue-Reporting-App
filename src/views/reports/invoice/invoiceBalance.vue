@@ -38,7 +38,7 @@
         class="filter-item"
         type="primary"
         icon="el-icon-download"
-        @click="handleDownload"
+        @click="getAllRows"
       >
         Exportar
       </el-button>
@@ -170,6 +170,7 @@ export default {
       selected: '',
       tableKey: 0,
       rep_comprobantes: [],
+      rep_export_all: [],
       listLoading: false,
       total: 0,
       listQuery: {
@@ -312,12 +313,40 @@ export default {
       })
       this.rep_comprobantes.splice(index, 1)
     },
+    getAllRows() {
+       if (this.listQuery.fechas != null) {
+        this.listLoading = true
+        var numOrden = '%' + this.listQuery.title + '%'
+        var tipo = '%' + this.selected + '%'
+        var usuario = '%' + this.listQuery.user + '%'
+        this.listQuery.offset = (this.listQuery.page - 1) * this.listQuery.limit
+        this.$apollo.query({
+          query: invoiceBalance,
+          variables: {
+            fechaInicio: this.listQuery.fechas[0],
+            fechaFin: this.listQuery.fechas[1],
+            factura: numOrden,
+            tipo: tipo,
+            offset: 0,
+            limit: this.listQuery.total,
+            usuario: usuario
+          },
+          error(error) {
+            this.error = JSON.stringify(error.message)
+          }
+        }).then(data => {
+          this.rep_export_all = data.data.ProformaFacturaDetalle
+          this.listLoading = false
+          this.handleDownload()
+        })
+      }
+    },
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['Comprobante', 'Fecha-Hora', 'Cedula', 'Contribuyente', 'Facturado Por', 'Cantidad', 'Descuento', 'Valor Unitario', 'IVA', 'Total']
         const filterVal = ['comprobante', 'date', 'ID', 'contributor', 'InvoicedBy', 'quantity', 'discount', 'unitValue', 'IVA', 'total']
-        var listToExport = this.rep_comprobantes.map(list => {
+        var listToExport = this.rep_export_all.map(list => {
           return {
             comprobante: list.ProformaFactura.NroFactura,
             date: list.ProformaFactura.FacturadoEn,

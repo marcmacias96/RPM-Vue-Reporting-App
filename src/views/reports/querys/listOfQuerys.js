@@ -421,114 +421,115 @@ var userRankingTasks = gql `
   }
   `
 var orderDetailsByDateEnd = gql `
-  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String) {
-    OrdenTrabajo_Detalle(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : {Departamento : {IdDpto : {_ilike : $departamento}}} }, limit: $limit, offset: $offset) {
-      TipoServicio {
-        TpServicio
-      }
-      TipoTramite {
-        DscaTipoTramite
-      }
-      StatusOT
-      CreadoEn
-      FechaInscripcion
-      FechaInicioTrabajo
-      FechaEstimadaEntrega
-      FechaPospuestaEntrega
-      FechaRealEntrega
-      Avaluo
-      AmountInvoiced
-      FojasAdc
-      Cantidad
-      usuarioByIduserasignado {
-        Nombres
-        Apellidos
-      }
-      usuarioByCreadopor {
-        Nombres
-        Apellidos
-      }
-      Usuario_OTs {
-        FechaRegistro
-        FechaFinalizacion
-      }
-      OrdenTrabajo_Cabecera {
-        ExcentoCobro
-        OrdenGubernamental
-        NroOrden
-        Estado
-        clienteByClientefactura {
-          NombreEmpresa
-          RepresentanteLegal
-          TerceraEdad
-          Nombres
-          Apellidos
-          DiscapacidadValidaParaDescuento
-        }
-      }
-      Observacion
+query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {
+  OrdenTrabajo_Detalle(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : { _or: [{Nombres: {_ilike: $usuario}},{Apellidos: {_ilike: $usuario}}],Departamento : {IdDpto : {_ilike : $departamento}}} }, limit: $limit, offset: $offset) {
+    TipoServicio {
+      TpServicio
     }
-    OrdenTrabajo_Detalle_aggregate(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : {Departamento : {IdDpto : {_ilike : $departamento}}}}) {
-      aggregate {
-        count
+    TipoTramite {
+      DscaTipoTramite
+    }
+    StatusOT
+    CreadoEn
+    FechaInscripcion
+    FechaInicioTrabajo
+    FechaEstimadaEntrega
+    FechaPospuestaEntrega
+    FechaRealEntrega
+    Avaluo
+    AmountInvoiced
+    FojasAdc
+    Cantidad
+    usuarioByIduserasignado {
+      Nombres
+      Apellidos
+    }
+    usuarioByCreadopor {
+      Nombres
+      Apellidos
+    }
+    Usuario_OTs {
+      FechaRegistro
+      FechaFinalizacion
+    }
+    OrdenTrabajo_Cabecera {
+      ExcentoCobro
+      OrdenGubernamental
+      NroOrden
+      Estado
+      clienteByClientefactura {
+        NombreEmpresa
+        RepresentanteLegal
+        TerceraEdad
+        Nombres
+        Apellidos
+        DiscapacidadValidaParaDescuento
       }
+    }
+    Observacion
+  }
+  OrdenTrabajo_Detalle_aggregate(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : { _or: [{Nombres: {_ilike: $usuario}},{Apellidos: {_ilike: $usuario}}],Departamento : {IdDpto : {_ilike : $departamento}}} }) {
+    aggregate {
+      count
     }
   }
+}
   `
 var orderDetailsByDateStart = gql `
-  query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
-    OrdenTrabajo_Detalle(where: {CreadoEn: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}}, limit: $limit, offset: $offset) {
-      TipoServicio {
-        TpServicio
-      }
-      TipoTramite {
-        DscaTipoTramite
-      }
-      StatusOT
-      CreadoEn
-      FechaInscripcion
-      FechaInicioTrabajo
-      FechaEstimadaEntrega
-      FechaPospuestaEntrega
-      FechaRealEntrega
-      Avaluo
-      AmountInvoiced
-      FojasAdc
-      Cantidad
-      usuarioByIduserasignado {
-        Nombres
-        Apellidos
-      }
-      usuarioByCreadopor {
-        Nombres
-        Apellidos
-      }
-      Usuario_OTs {
-        FechaRegistro
-        FechaFinalizacion
-      }
-      OrdenTrabajo_Cabecera {
-        ExcentoCobro
-        OrdenGubernamental
-        NroOrden
-        Estado
-        clienteByClientefactura {
-          NombreEmpresa
-          RepresentanteLegal
-          TerceraEdad
-          Nombres
-          Apellidos
-          DiscapacidadValidaParaDescuento
-        }
-      }
-      Observacion
+query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
+  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
+    TipoServicio {
+      TpServicio
     }
-    OrdenTrabajo_Detalle_aggregate(where: {CreadoEn: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}}) {
-      aggregate {
-        count
+    TipoTramite {
+      DscaTipoTramite
+    }
+    StatusOT
+    CreadoEn
+    FechaInscripcion
+    FechaInicioTrabajo
+    FechaEstimadaEntrega
+    FechaPospuestaEntrega
+    FechaRealEntrega
+    Avaluo
+    AmountInvoiced
+    FojasAdc
+    Cantidad
+    usuarioByIduserasignado {
+      Nombres
+      Apellidos
+    }
+    usuarioByCreadopor {
+      Nombres
+      Apellidos
+    }
+    Usuario_OTs {
+      FechaInicio
+      FechaRegistro
+      FechaFinalizacion
+    }
+    OrdenTrabajo_Cabecera {
+      ExcentoCobro
+      OrdenGubernamental
+      NroOrden
+      Estado
+      clienteByClientefactura {
+        NombreEmpresa
+        RepresentanteLegal
+        TerceraEdad
+        Nombres
+        Apellidos
+        DiscapacidadValidaParaDescuento
       }
+    }
+    Observacion
+  }
+  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+    aggregate {
+      count
     }
   }
+}
   `
 var detellesExcel = gql `
   query($fechaInicio: String!, $fechaFin: String!, $status: [Int]){
@@ -602,6 +603,52 @@ var tramitesMontoDetalles = gql`
     }
   }
   `
+  var alcabalas = gql`
+    query ($fechaInicio: timestamp!, $fechaFin: timestamp!){
+      Usuario_OT(where: {Inscripcions: {FechaInscr: {_gte: $fechaInicio, _lte: $fechaFin}, Libro: {OID: {_eq: 28}}}, OrdenTrabajo_Detalle: {Avaluo: {_gt: "0"}}}) {
+        OrdenTrabajo_Detalle {
+          OrdenTrabajo_Cabecera {
+            NroOrden
+            OrdenTrabajo_Detalles(where: {Avaluo: {_gt: "0"}}) {
+              Avaluo
+              AmountInvoiced
+              TipoTramite{
+                DscaTipoTramite
+              }
+            }
+          }
+        }
+        Inscripcions(where: {Libro: {OID: {_eq: 28}}}) {
+          OID
+          FechaInscr
+          FechaOtorga
+          NroRepertorio
+          NroInscripcion
+          Cuantia
+          Libro {
+            DscaLibro
+          }
+          Acto {
+            DescActo
+          }
+          Partes_Inscrps {
+            FullName
+            Papel {
+              DscaPapel
+            }
+            Cliente {
+              CedRuc
+            }
+          }
+          Bienes_Inscrps {
+            Ficha_Registral {
+              CodCatastro
+            }
+          }
+        }
+      }
+    }
+  `
 
 export {
   tiposTramite,
@@ -619,5 +666,6 @@ export {
   orderDetailsByDateEnd,
   orderDetailsByDateStart,
   detellesExcel,
-  tramitesMontoDetalles
+  tramitesMontoDetalles,
+  alcabalas
 }

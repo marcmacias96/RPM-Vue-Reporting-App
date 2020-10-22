@@ -114,7 +114,7 @@
         </el-table-column>
         <el-table-column label="Lista Entrega" width="110px" align="center">
           <template slot-scope="{ row }">
-            <span>{{ row.paraEntrega | moment("YYYY-MM-DD hh:mm:ss") }}</span>
+            <span>{{ row.paraEntrega }}</span>
           </template>
         </el-table-column>
         <el-table-column label="Finalizada" width="90px" align="center">
@@ -413,7 +413,6 @@ export default {
           }
         }).then(data => {
           this.listaServicios = data.data.rep_tiposServicios
-          console.log(this.listaServicios)
           this.total = this.listaServicios[this.listaServicios.length - 1].totalRecaudado
         })
       }

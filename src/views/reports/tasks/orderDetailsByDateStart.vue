@@ -11,21 +11,6 @@
         value-format="yyyy-MM-dd HH:mm:ss"
       />
       <el-select
-        v-model="selectedDep"
-        style="width:200px;"
-        multiple
-        filterable
-        collapse-tags
-        placeholder="Departamento"
-      >
-        <el-option
-          v-for="item in DepOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-      <el-select
         v-model="selected"
         style="width:200px;"
         multiple
@@ -55,14 +40,13 @@
         class="filter-item"
         type="primary"
         icon="el-icon-download"
-        @click="exportPDF"
+        @click="handleDownload"
       >
-        Export PDF
+        Exportar Excel
       </el-button>
     </div>
     <div class="table-container">
       <el-table
-        :key="tableKey"
         v-loading="listLoading"
         :data="rep_orderDetails"
         border
@@ -72,29 +56,21 @@
         style="width: 100%;"
       >
         <el-table-column
-          label="Fecha Registro"
-          width="150px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.Usuario_OTs[0].FechaRegistro | moment("YY-MM-DD hh:mm:ss") }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Estado Tarea"
-          width="120px"
+          label="Fecha de Inicio"
+          min-width="200px"
           align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ tasksStatus[row.StatusOT] }}</span>
+            <span>{{ row.Usuario_OTs[0].FechaInicio | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="Asignado a"
+          label="Creado en"
           min-width="200px"
+          align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.usuarioByIduserasignado.Nombres }}</span>
-            <span>{{ row.usuarioByIduserasignado.Apellidos }}</span>
+            <span>{{ row.CreadoEn | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -112,13 +88,6 @@
         <el-table-column
           label="F. Est. Finalización"
           width="150px"
-          prop="FechaEstimadaEntrega"
-          align="center"
-        />
-        <el-table-column
-          label="F. Est. Finalización"
-          width="150px"
-          prop="FechaEstimadaEntrega"
           align="center"
         >
           <template slot-scope="{ row }">
@@ -139,11 +108,9 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { orderDetailsByDateEnd } from '../querys/listOfQuerys'
+import { orderDetailsByDateStart, detellesExcel } from '../querys/listOfQuerys'
 import Pagination from '@/components/Pagination'
-import jsPDF from 'jspdf'
 import 'jspdf-autotable'
-import moment from 'moment'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -174,6 +141,7 @@ export default {
   },
   data() {
     return {
+      rows: null,
       tasksStatus: [
         'No Iniciado',
         'Rev Jurídico',
@@ -185,16 +153,15 @@ export default {
         'Anulado'
       ],
       listaEstados: [
-        { label: 'No Iniciado', value: '0' },
-        { label: 'Rev Jurídico', value: '1' },
-        { label: 'Rev Jud Comp', value: '2' },
-        { label: 'En Proceso', value: '3' },
-        { label: 'Por Firmar', value: '4' },
-        { label: 'Completado', value: '5' },
-        { label: 'Pendiente', value: '6' },
-        { label: 'Anulado', value: '7' }
+        { label: 'No Iniciado', value: 0 },
+        { label: 'Rev Jurídico', value: 1 },
+        { label: 'Rev Jud Comp', value: 2 },
+        { label: 'En Proceso', value: 3 },
+        { label: 'Por Firmar', value: 4 },
+        { label: 'Completado', value: 5 },
+        { label: 'Pendiente', value: 6 },
+        { label: 'Anulado', value: 7 }
       ],
-      selectedDep: '',
       selected: [],
       tableKey: 0,
       rep_orderDetails: [],
@@ -213,7 +180,7 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      DepOptions: [{ label: 'Certificados', value: 'Certificados' }, { label: 'Inscripciones', value: 'Inscripciones' }],
+      repOptions: [{ label: 'Comprobante', key: 'NC' }, { label: 'Nota Crédito', key: 'CP' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
@@ -253,75 +220,25 @@ export default {
     }
   },
   methods: {
-    exportPDF() {
-      this.downloadLoading = true
-      this.$apollo.query({
-        query: orderDetailsByDateEnd,
-        variables: {
-          fechaInicio: this.listQuery.fechas[0],
-          fechaFin: this.listQuery.fechas[1],
-          limit: this.listQuery.total,
-          offset: 0,
-          status: this.selected,
-          departamento: this.selectedDep[0]
-        },
-        error(error) {
-          this.error = JSON.stringify(error.message)
-        }
-      }).then(data => {
-        var count = 0
-        var rows = data.data.OrdenTrabajo_Detalle.map(det => {
-          var aux = {
-            Nro: count++,
-            fRegistro: moment(det.Usuario_OTs[0].FechaRegistro).format('YYYY-MM-DD hh:mm:ss'),
-            Etarea: this.tasksStatus[det.StatusOT],
-            Asignado: `${det.usuarioByIduserasignado.Nombres} ${det.usuarioByIduserasignado.Apellidos}`,
-            tpTramite: det.TipoTramite.DscaTipoTramite,
-            NroOrden: det.OrdenTrabajo_Cabecera.NroOrden,
-            FEfin: det.FechaEstimadaEntrega,
-            Observacion: det.Observacion
-          }
-          return aux
-        })
-        var columns = [
-          { title: 'Nro', dataKey: 'Nro' },
-          { title: 'Fecha Registro', dataKey: 'fRegistro' },
-          { title: 'Estado Tarea', dataKey: 'Etarea' },
-          { title: 'Asiganado a', dataKey: 'Asignado' },
-          { title: 'Tipo Tramite', dataKey: 'tpTramite' },
-          { title: 'Nro Orden', dataKey: 'NroOrden' },
-          { title: 'Fecha E. Fin', dataKey: 'FEfin' },
-          { title: 'Observaciones', dataKey: 'Observacion' }
-        ]
-        var doc = jsPDF('p', 'pt')
-        doc.autoTable(columns, rows, {
-          styles: {
-            cellPadding: 5
-          }
-        })
-        doc.save('table.pdf')
-      })
-      this.downloadLoading = false
-    },
     handleFilter() {
       if (this.listQuery.fechas != null) {
         this.listLoading = true
         this.listQuery.offset = (this.listQuery.page - 1) * this.listQuery.limit
         this.$apollo.query({
-          query: orderDetailsByDateEnd,
+          query: orderDetailsByDateStart,
           variables: {
             fechaInicio: this.listQuery.fechas[0],
             fechaFin: this.listQuery.fechas[1],
-            limit: 1000,
+            limit: this.listQuery.limit,
             offset: this.listQuery.offset,
-            status: this.selected,
-            departamento: this.selectedDep[0]
+            status: this.selected
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
           this.rep_orderDetails = data.data.OrdenTrabajo_Detalle
+          console.log(this.rep_orderDetails)
           this.listQuery.total = data.data.OrdenTrabajo_Detalle_aggregate.aggregate.count
           this.listLoading = false
         })
@@ -388,20 +305,31 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'Reporte-tramites'
+        this.$apollo.query({
+          query: detellesExcel,
+          variables: {
+            fechaInicio: this.listQuery.fechas[0],
+            fechaFin: this.listQuery.fechas[1],
+            status: this.selected
+          },
+          error(error) {
+            this.error = JSON.stringify(error.message)
+          }
+        }).then(data => {
+          const tHeader = ['Nro', 'Tipo Servicio', 'Fecha Registro', 'Estado Tarea', 'Asiganado a', 'Tipo Tramite', 'Nro Orden', 'Fecha Estimada Entrega', 'Observación', 'Creado En', 'Fecha Inscripción', 'Fecha Inicio Trabajo', 'Fecha Pospuesta Entrega', 'Fecha Real Entrega', 'Avaluo', 'Monto', 'Fojas Adc', 'Cantidad', 'Creado Por', 'Fecha Finalización', 'Excento a Cobro', 'Orden Gubernamental', 'Estado Orden', 'Cliente', 'Empresa', 'Representante Legal', 'Tercera Edad', 'Discapacidad']
+          const filterVal = ['Nro', 'TpServicio', 'fRegistro', 'Etarea', 'Asignado', 'tpTramite', 'NroOrden', 'FEfin', 'Observacion', 'CreadoEn', 'FInscripcion', 'FInicioTrabajo', 'FPostpuestaEntrega', 'FRealEntrega', 'Avaluo', 'Monto', 'FojasAdc', 'Cantidad', 'CreadoPor', 'FFinalizacion', 'ExcentoCobro', 'OrdenGubernamental', 'EstadoOrden', 'Cliente', 'Empresa', 'RepLegal', 'TerceraEdad', 'Discapacidad']
+          const Exdata = this.formatJson(filterVal, data.data.detalles_excel)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data: Exdata,
+            filename: 'Reporte-ordenes'
+          })
+          this.downloadLoading = false
         })
-        this.downloadLoading = false
       })
     },
-    formatJson(filterVal) {
-      console.log('hola')
-      return this.rep_orderDetails.map(v =>
+    formatJson(filterVal, data) {
+      return data.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])

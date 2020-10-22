@@ -128,7 +128,7 @@ export default {
             sumatoria[3].value += usu.noIniciada.aggregate.count
           })
           this.chartData.data = sumatoria
-          this.chartData.labels = ['Pendientes', 'Completados', 'Por firmar', 'No Iniciado']
+          this.chartData.labels = ['Pendientes', 'Completados', 'Por Firmar', 'No Iniciado']
         }
       }
     }

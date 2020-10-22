@@ -40,6 +40,7 @@
           :value="item.value"
         />
       </el-select>
+      <el-input v-model="listQuery.user" placeholder="Asignado a" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button
         v-waves
         class="filter-item"
@@ -55,9 +56,9 @@
         class="filter-item"
         type="primary"
         icon="el-icon-download"
-        @click="exportPDF"
+        @click="exportEXCEL"
       >
-        Export PDF
+        Export EXCEL
       </el-button>
     </div>
     <div class="table-container">
@@ -93,7 +94,7 @@
           min-width="200px"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.usuarioByIduserasignado.Nombres }}</span>
+            <span>{{ row.usuarioByIduserasignado.Nombres }}  &nbsp;</span>
             <span>{{ row.usuarioByIduserasignado.Apellidos }}</span>
           </template>
         </el-table-column>
@@ -112,17 +113,19 @@
         <el-table-column
           label="F. Est. Finalización"
           width="150px"
-          prop="FechaEstimadaEntrega"
-          align="center"
-        />
-        <el-table-column
-          label="F. Est. Finalización"
-          width="150px"
-          prop="FechaEstimadaEntrega"
           align="center"
         >
           <template slot-scope="{ row }">
             <span>{{ row.FechaEstimadaEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="F. Real Entrega"
+          width="150px"
+          align="center"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaRealEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -141,8 +144,6 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { orderDetailsByDateEnd } from '../querys/listOfQuerys'
 import Pagination from '@/components/Pagination'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
 import moment from 'moment'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -253,7 +254,7 @@ export default {
     }
   },
   methods: {
-    exportPDF() {
+    exportEXCEL() {
       this.downloadLoading = true
       this.$apollo.query({
         query: orderDetailsByDateEnd,
@@ -263,7 +264,8 @@ export default {
           limit: this.listQuery.total,
           offset: 0,
           status: this.selected,
-          departamento: this.selectedDep[0]
+          departamento: this.selectedDep[0],
+          usuario: '%' + this.listQuery.user + '%'
         },
         error(error) {
           this.error = JSON.stringify(error.message)
@@ -283,23 +285,7 @@ export default {
           }
           return aux
         })
-        var columns = [
-          { title: 'Nro', dataKey: 'Nro' },
-          { title: 'Fecha Registro', dataKey: 'fRegistro' },
-          { title: 'Estado Tarea', dataKey: 'Etarea' },
-          { title: 'Asiganado a', dataKey: 'Asignado' },
-          { title: 'Tipo Tramite', dataKey: 'tpTramite' },
-          { title: 'Nro Orden', dataKey: 'NroOrden' },
-          { title: 'Fecha E. Fin', dataKey: 'FEfin' },
-          { title: 'Observaciones', dataKey: 'Observacion' }
-        ]
-        var doc = jsPDF('p', 'pt')
-        doc.autoTable(columns, rows, {
-          styles: {
-            cellPadding: 5
-          }
-        })
-        doc.save('table.pdf')
+        this.handleDownload(rows)
       })
       this.downloadLoading = false
     },
@@ -315,7 +301,8 @@ export default {
             limit: this.listQuery.limit,
             offset: this.listQuery.offset,
             status: this.selected,
-            departamento: this.selectedDep[0]
+            departamento: this.selectedDep[0],
+            usuario: '%' + this.listQuery.user + '%'
           },
           error(error) {
             this.error = JSON.stringify(error.message)
@@ -385,12 +372,12 @@ export default {
       })
       this.rep_orderDetails.splice(index, 1)
     },
-    handleDownload() {
+    handleDownload(rows) {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
-        const filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
-        const data = this.formatJson(filterVal)
+        const tHeader = ['Nro de trámite', 'Fecha Registro', 'Estado Tarea', 'Asiganado a', 'Tipo Tramite', 'Nro Orden', 'Fecha E. Fin', 'Observaciones']
+        const filterVal = ['Nro', 'fRegistro', 'Etarea', 'Asignado', 'tpTramite', 'NroOrden', 'FEfin', 'Observacion']
+        const data = this.formatJson(filterVal, rows)
         excel.export_json_to_excel({
           header: tHeader,
           data,
@@ -399,9 +386,8 @@ export default {
         this.downloadLoading = false
       })
     },
-    formatJson(filterVal) {
-      console.log('hola')
-      return this.rep_orderDetails.map(v =>
+    formatJson(filterVal, rows) {
+      return rows.map(v =>
         filterVal.map(j => {
           if (j === 'timestamp') {
             return parseTime(v[j])

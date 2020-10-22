@@ -56,11 +56,23 @@
         style="width: 100%;"
       >
         <el-table-column
+          label="Fecha de Inicio"
+          min-width="200px"
+          align="center"
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.Usuario_OTs[0].FechaInicio | moment("YY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="Creado en"
           min-width="200px"
-          prop="CreadoEn"
           align="center"
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.CreadoEn | moment("YY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           label="Tipo Servicio"
           min-width="200px"
@@ -76,9 +88,12 @@
         <el-table-column
           label="F. Est. Finalización"
           width="150px"
-          prop="FechaEstimadaEntrega"
           align="center"
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>{{ row.FechaEstimadaEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           label="Observaciones"
           min-width="300px"
@@ -223,6 +238,7 @@ export default {
           }
         }).then(data => {
           this.rep_orderDetails = data.data.OrdenTrabajo_Detalle
+          console.log(this.rep_orderDetails)
           this.listQuery.total = data.data.OrdenTrabajo_Detalle_aggregate.aggregate.count
           this.listLoading = false
         })

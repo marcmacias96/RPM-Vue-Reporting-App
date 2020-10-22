@@ -39,17 +39,17 @@ export default {
           this.fechas[0] = moment().set({ 'hour': 0, 'minute': 0, 'second': 0 }).format('YYYY-MM-DD HH:mm:ss')
           this.fechas[1] = moment().set({ 'hour': 23, 'minute': 59, 'second': 59 }).format('YYYY-MM-DD HH:mm:ss')
           return {
-            fechaInicio: '2020-03-12 00:00:00',
-            fechaFin: '2020-03-12 23:59:59',
-            departamento: '%inscr%'
+            fechaInicio: this.fechas[0],
+            fechaFin: this.fechas[1],
+            departamento: '%INS%'
           }
         },
         result({ data }) {
           var usersRanking = data.Usuario.sort(function(a, b) {
-            if (a.completado.aggregate.count < b.completado.aggregate.count) {
+            if (a.total.aggregate.count < b.total.aggregate.count) {
               return 1
             }
-            if (a.completado.aggregate.count > b.completado.aggregate.count) {
+            if (a.total.aggregate.count > b.total.aggregate.count) {
               return -1
             }
             return 0
@@ -58,7 +58,7 @@ export default {
             return user.Nombres + user.Apellidos
           })
           var auxData = usersRanking.map(user => {
-            return user.completado.aggregate.count
+            return user.total.aggregate.count
           })
           this.chartData.data = auxData.reverse()
         }

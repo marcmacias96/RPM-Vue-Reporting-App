@@ -10,24 +10,6 @@
         align="right"
         value-format="yyyy-MM-dd HH:mm:ss"
       />
-      <el-select v-model="listQuery.type" placeholder="Orden" style="width: 140px" class="filter-item">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select>
-      <el-select
-        v-model="selected"
-        style="width:500px;"
-        multiple
-        filterable
-        collapse-tags
-        placeholder="Tramites"
-      >
-        <el-option
-          v-for="item in listaTramites"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
       <el-button
         v-waves
         class="filter-item"
@@ -47,17 +29,12 @@
       >
         Exportar
       </el-button>
-      <el-button
-        v-waves
-        class="total-container"
-        type="info"
-      > Total Recaudado $ {{ formatPrice(total) }} </el-button>
     </div>
 
     <el-table
       :key="tableKey"
       v-loading="$apollo.loading"
-      :data="rep_tiposTramite"
+      :data="rep_alcabalas"
       border
       fit
       height="600"
@@ -66,21 +43,21 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="Tipo de trámite" min-width="150px">
-        <template slot-scope="{ row }">
-          <span>{{ row.DscaTipoTramite }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Cantidad" width="110px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.Cantidad }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="Monto" width="110px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ formatPrice( row.AmountInvoiced) }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        label="Repertorio"
+        min-width="150px"
+        prop="Inscripcions[0].NroRepertorio"
+      />
+      <el-table-column
+        label="Inscripcion"
+        min-width="150px"
+        prop="Inscripcions[0].NroInscripcion"
+      />
+      <el-table-column
+        label="Nro Orden"
+        min-width="150px"
+        prop="OrdenTrabajo_Detalle.OrdenTrabajo_Cabecera.NroOrden"
+      />
       <el-table-column
         label="Detalles"
         width="100px"
@@ -243,7 +220,7 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { tiposTramite, tramitesMontoDetalles, tramiteSelect } from '../querys/listOfQuerys'
+import { alcabalas } from '../querys/listOfQuerys'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -299,7 +276,7 @@ export default {
       listaDetalles: [],
       dialogoVisible: false,
       tableKey: 0,
-      rep_tiposTramite: null,
+      rep_alcabalas: [],
       total: 0,
       listLoading: true,
       listQuery: {
@@ -353,7 +330,7 @@ export default {
     }
   },
   methods: {
-    getDetalleList(row) {
+    /* getDetalleList(row) {
       this.dialogoVisible = true
       this.NombreTramite = row.DscaTipoTramite
       console.log(this.tiposTramite)
@@ -394,72 +371,20 @@ export default {
         })
         console.log(this.listaDetalles)
       })
-    },
-    order(key) {
-      var aux = null
-      if (key === 'cant') {
-        aux = this.rep_tiposTramite.pop()
-        this.rep_tiposTramite.sort(function(a, b) {
-          if (a.Cantidad < b.Cantidad) {
-            return 1
-          }
-          if (a.Cantidad > b.Cantidad) {
-            return -1
-          }
-          return 0
-        })
-        this.rep_tiposTramite.push(aux)
-      } else {
-        aux = this.rep_tiposTramite.pop()
-        this.rep_tiposTramite.sort(function(a, b) {
-          if (a.AmountInvoiced < b.AmountInvoiced) {
-            return 1
-          }
-          if (a.AmountInvoiced > b.AmountInvoiced) {
-            return -1
-          }
-          return 0
-        })
-        this.rep_tiposTramite.push(aux)
-      }
-    },
+    }, */
     handleFilter() {
       if (this.listQuery.fechas != null) {
-        if (this.selected.length === 0) {
-          this.selected = this.listaFiltro
-        }
         this.$apollo.query({
-          query: tiposTramite,
+          query: alcabalas,
           variables: {
             fechaInicio: this.listQuery.fechas[0].toString(),
-            fechaFin: this.listQuery.fechas[1].toString(),
-            filtro: this.selected
+            fechaFin: this.listQuery.fechas[1].toString()
           },
           error(error) {
             this.error = JSON.stringify(error.message)
           }
         }).then(data => {
-          this.rep_tiposTramite = []
-          var total = {
-            Cantidad: 0,
-            AmountInvoiced: 0,
-            DscaTipoTramite: 'TOTAL'
-          }
-          data.data.TipoTramite.forEach(tramite => {
-            var aux = {
-              DscaTipoTramite: tramite.DscaTipoTramite,
-              Cantidad: tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad,
-              AmountInvoiced: tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total,
-              OID: tramite.OrdenTrabajo_Detalles_aggregate.nodes
-            }
-            this.rep_tiposTramite.push(aux)
-            total.Cantidad += tramite.OrdenTrabajo_Detalles_aggregate.aggregate.sum.Cantidad
-            total.AmountInvoiced += tramite.ProformaFacturaDetalles_aggregate.aggregate.sum.Total
-          })
-          this.total = total.AmountInvoiced
-          this.rep_tiposTramite.push(total)
-          this.order(this.listQuery.type)
-          // ? this.listQuery.type != null : this.order(this.listQuery.type)
+            this.rep_alcabalas = data.data.Usuario_OT
         })
       }
     },
@@ -519,7 +444,7 @@ export default {
         type: 'success',
         duration: 2000
       })
-      this.rep_tiposTramite.splice(index, 1)
+      this.rep_alcabalas.splice(index, 1)
     },
     handleDownload(ty) {
       this.downloadLoading = true
@@ -534,9 +459,8 @@ export default {
         } else {
           tHeader = ['Tipo de trámite', 'Cantidad', 'Monto']
           filterVal = ['DscaTipoTramite', 'Cantidad', 'AmountInvoiced']
-          data = this.formatJson(filterVal, this.rep_tiposTramite)
+          data = this.formatJson(filterVal, this.rep_alcabalas)
         }
-        console.log(data)
         excel.export_json_to_excel({
           header: tHeader,
           data,
@@ -563,11 +487,6 @@ export default {
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
-    }
-  },
-  apollo: {
-    listaTramites: {
-      query: tramiteSelect
     }
   }
 }

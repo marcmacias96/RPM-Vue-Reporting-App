@@ -399,26 +399,27 @@ var invoiceBalance = gql`
   `
 var userRankingTasks = gql `
   subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
-    Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
-      Nombres
-      Apellidos
-      porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 4}}}) {
-        aggregate {
-          count
-        }
+  Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+    Nombres
+    Apellidos
+  
+    porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {OrdenTrabajo_Cabecera: {Estado: {_eq: 5}}}}) {
+      aggregate {
+        count
       }
-      completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 5}}}) {
-        aggregate {
-          count
-        }
+    }
+    completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {OrdenTrabajo_Cabecera: {Estado: {_eq: 7}}}}) {
+      aggregate {
+        count
       }
-      total: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {_or: [{StatusOT: {_eq: 4}}, {StatusOT: {_eq: 5}}]}}) {
-        aggregate {
-          count
-        }
+    }
+    total: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {OrdenTrabajo_Cabecera: {_or: [{Estado: {_eq: 5}}, {Estado: {_eq: 7}}]}}})  {
+      aggregate {
+        count
       }
     }
   }
+}
   `
 var orderDetailsByDateEnd = gql `
 query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {

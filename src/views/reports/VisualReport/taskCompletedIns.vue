@@ -55,7 +55,7 @@ export default {
             return 0
           })
           this.chartData.labels = usersRanking.map(user => {
-            return user.Nombres + user.Apellidos
+            return user.Nombres + ' ' + user.Apellidos
           })
           var auxData = usersRanking.map(user => {
             return user.total.aggregate.count

@@ -141,18 +141,12 @@ export default {
             show: false
           }
         }],
-        series: [{
-          name: moment().format('YYYY'),
-          type: 'bar',
-          stack: 'vistors',
-          barWidth: '80%',
-          data: Data.data,
-          animationDuration
-        }, {
+        series: [
+        {
           name: moment().format('YYYY') - 1,
           type: 'bar',
-          stack: 'vistors',
-          barWidth: '80%',
+          stack: '1',
+          barWidth: '40%',
           data: Data.dataLastYear,
           animationDuration,
           itemStyle: {
@@ -161,6 +155,14 @@ export default {
               color: '#5BB1EF'
             }
           }
+        },
+        {
+          name: moment().format('YYYY'),
+          type: 'bar',
+          stack: '2',
+          barWidth: '40%',
+          data: Data.data,
+          animationDuration
         }]
       })
     }

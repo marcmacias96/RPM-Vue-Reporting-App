@@ -423,7 +423,7 @@ var userRankingTasks = gql `
   `
 var orderDetailsByDateEnd = gql `
 query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {
-  OrdenTrabajo_Detalle(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : { _or: [{Nombres: {_ilike: $usuario}},{Apellidos: {_ilike: $usuario}}],Departamento : {IdDpto : {_ilike : $departamento}}} }, limit: $limit, offset: $offset) {
+  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
     TipoServicio {
       TpServicio
     }
@@ -469,7 +469,7 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
     }
     Observacion
   }
-  OrdenTrabajo_Detalle_aggregate(where: {FechaEstimadaEntrega: {_gte: $fechaInicio, _lte: $fechaFin}, StatusOT: {_in: $status}, usuarioByIduserasignado : { _or: [{Nombres: {_ilike: $usuario}},{Apellidos: {_ilike: $usuario}}],Departamento : {IdDpto : {_ilike : $departamento}}} }) {
+  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
     aggregate {
       count
     }
@@ -477,8 +477,8 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
 }
   `
 var orderDetailsByDateStart = gql `
-query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!]) {
-  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
+query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {
+  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
     TipoServicio {
       TpServicio
     }
@@ -505,8 +505,8 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
       Apellidos
     }
     Usuario_OTs {
-      FechaInicio
       FechaRegistro
+      FechaInicio
       FechaFinalizacion
     }
     OrdenTrabajo_Cabecera {
@@ -525,7 +525,7 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
     }
     Observacion
   }
-  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
     aggregate {
       count
     }

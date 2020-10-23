@@ -106,30 +106,35 @@ var AmountWeek = gql `
     }
   `
 var penAndCompByDep = gql `
-  subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
-    Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
-        pendientes: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 6}}}) {
-        aggregate {
-            count
-        }
-        }
-        completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 5}}}) {
-        aggregate {
-            count
-        }
-        }
-        porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 4}}}) {
-        aggregate {
-            count
-        }
-        }
-        noIniciada: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, OrdenTrabajo_Detalle: {StatusOT: {_eq: 0}}}) {
-        aggregate {
-            count
-        }
-        }
+subscription ($fechaInicio: timestamp, $fechaFin: timestamp, $departamento: String!) {
+  Usuario(where: {Departamento: {IdDpto: {_ilike: $departamento}}, usuarioOtsByIduserasignado: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+    noIniciado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea: {_eq: 0}}) {
+      aggregate {
+        count
+      }
     }
-    }  
+    enProceso: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea: {_eq: 3}}) {
+      aggregate {
+        count
+      }
+    }
+    porFirmar: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}EstadoTarea: {_eq: 4}}) {
+      aggregate {
+        count
+      }
+    }
+    completado: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin},EstadoTarea: {_eq: 5}}) {
+      aggregate {
+        count
+      }
+    }
+    pendiente: usuarioOtsByIduserasignado_aggregate(where: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin},EstadoTarea: {_eq: 5}}) {
+      aggregate {
+        count
+      }
+    }
+  }
+}
   `
 
 export { AmountOfServices, SubAmountYear, QueryAmountYear, AmountOfProcedures, AmountWeek, penAndCompByDep }

@@ -94,7 +94,7 @@
           align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ tasksStatus[row.StatusOT] }}</span>
+            <span>{{ tasksStatus[row.Usuario_OTs[0].EstadoTarea] }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -284,7 +284,7 @@ export default {
           var aux = {
             Nro: count++,
             fRegistro: moment(det.Usuario_OTs[0].FechaRegistro).format('YYYY-MM-DD hh:mm:ss'),
-            Etarea: this.tasksStatus[det.StatusOT],
+            Etarea: this.tasksStatus[det.Usuario_OTs[0].EstadoTarea],
             Asignado: `${det.usuarioByIduserasignado.Nombres} ${det.usuarioByIduserasignado.Apellidos}`,
             tpTramite: det.TipoTramite.DscaTipoTramite,
             NroOrden: det.OrdenTrabajo_Cabecera.NroOrden,

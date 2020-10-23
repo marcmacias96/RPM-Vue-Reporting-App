@@ -116,24 +116,24 @@ export default {
           })
           var cert = {
             name: 'CERTIFICADOS',
-            value: 0 
+            value: 0
           }
           var ins = {
-            name: "INSCRIPCIONES",
-            value: 0 
+            name: 'INSCRIPCIONES',
+            value: 0
           }
           var onl = {
-            name: "SERVICIO ONLINE",
-            value: 0 
+            name: 'SERVICIO ONLINE',
+            value: 0
           }
            sinAgrupar.forEach(data => {
-            if(data.name.includes('CERTI')){
+            if (data.name.includes('CERTI')) {
                 cert.value += data.value
             }
-            if(data.name.includes('INSC')){
+            if (data.name.includes('INSC')) {
                 ins.value += data.value
             }
-            if(data.name.includes('ONLINE')){
+            if (data.name.includes('ONLINE')) {
                 onl.value += data.value
             }
           })

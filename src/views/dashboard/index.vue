@@ -25,7 +25,7 @@
     <el-row :gutter="16">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-           <pie-chart-services />
+          <pie-chart-services />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">

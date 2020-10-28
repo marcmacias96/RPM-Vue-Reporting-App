@@ -660,6 +660,30 @@ var tramitesMontoDetalles = gql`
     }
   `
 
+  var linderos_vacios = gql`
+    query ($nombre: String!, $limit: Int, $offset: Int, $fechaInicio: timestamp, $fechaFin: timestamp) {
+      linderos_vacios_aggregate(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}) {
+        aggregate {
+          count
+        }
+      }
+      linderos_vacios(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}, limit: $limit, offset: $offset) {
+        NroFicha
+        IdNorte
+        IdSur
+        IdEste
+        IdOeste
+        Frente
+        Atras
+        Derecho
+        Izquierdo
+        Lindero
+        Usuario
+        fecha
+      }
+    }
+  `
+
 export {
   tiposTramite,
   tramitesUsuario,
@@ -677,5 +701,6 @@ export {
   orderDetailsByDateStart,
   detellesExcel,
   tramitesMontoDetalles,
-  alcabalas
+  alcabalas,
+  linderos_vacios
 }

@@ -120,12 +120,12 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="F. Real Entrega"
+          label="Fecha Finalización"
           width="150px"
           align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaRealEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
+            <span>{{ row.Usuario_OTs[0].FechaFinalizacion | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -291,6 +291,9 @@ export default {
     },
     handleFilter() {
       if (this.listQuery.fechas != null) {
+        if (this.selected.length === 0) {
+          this.selected = [0, 1, 2, 3, 4, 5, 6, 7]
+        }
         this.listLoading = true
         this.listQuery.offset = (this.listQuery.page - 1) * this.listQuery.limit
         this.$apollo.query({

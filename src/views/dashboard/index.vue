@@ -8,7 +8,7 @@
     <el-row :gutter="16">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart-services />
+          <pie-chart-services-agrupate />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
@@ -23,12 +23,17 @@
       </el-col>
     </el-row>
     <el-row :gutter="16">
-      <el-col :xs="24" :sm="24" :lg="12">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <div class="chart-wrapper">
+          <pie-chart-services />
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <pie-chart-task-in />
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="12">
+      <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <pie-chart-task-cert />
         </div>
@@ -45,6 +50,7 @@ import PieChartServices from './Components/PieChartServices'
 import PieChartProcedures from './Components/PieChartProcedures'
 import PieChartTaskIn from './Components/PieChartTaskIn'
 import PieChartTaskCert from './Components/BarChartTaskCert'
+import PieChartServicesAgrupate from './Components/PieChartServicesAgrupate'
 
 export default {
   name: 'Dashboard',
@@ -54,7 +60,8 @@ export default {
     PieChartProcedures,
     BarChartAmountWeek,
     PieChartTaskIn,
-    PieChartTaskCert
+    PieChartTaskCert,
+    PieChartServicesAgrupate
   },
   data() {
     return {

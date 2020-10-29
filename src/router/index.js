@@ -169,6 +169,23 @@ export const constantRoutes = [
             meta: { title: 'Ranking Inscripciones', icon: 'rankings' }
           }
         ]
+      },
+      {
+        // nombre de la carpeta
+        path: 'boundaries',
+        name: 'boundaries',
+        component: () => import('@/views/reports/boundaries/index'),
+        // nombre de item en menu
+        meta: { title: 'Reportes Linderos', icon: 'table' },
+        children: [
+          // hijos muestra los reportes
+          {
+            path: 'boundaries_empty',
+            name: 'boundaries_empty',
+            component: () => import('@/views/reports/boundaries/boundaries_empty'),
+            meta: { title: 'Linderos Vacios', icon: 'table' }
+          }
+        ]
       } /* ,
       {
         path: 'Reportes_luis',

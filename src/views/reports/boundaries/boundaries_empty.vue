@@ -11,12 +11,11 @@
         value-format="yyyy-MM-dd HH:mm:ss"
       />
       <el-select
-        v-model="selectedDep"
+        v-model="selectedEstate"
         style="width:200px;"
-        multiple
         filterable
         collapse-tags
-        placeholder="Departamento"
+        placeholder="Opcion"
       >
         <el-option
           v-for="item in DepOptions"
@@ -25,22 +24,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-select
-        v-model="selected"
-        style="width:200px;"
-        multiple
-        filterable
-        collapse-tags
-        placeholder="Estados"
-      >
-        <el-option
-          v-for="item in listaEstados"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-      <el-input v-model="listQuery.user" placeholder="Asignado a" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.user" placeholder="Creado por" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button
         v-waves
         class="filter-item"
@@ -65,7 +49,7 @@
       <el-table
         :key="tableKey"
         v-loading="listLoading"
-        :data="rep_orderDetails"
+        :data="normal"
         border
         fit
         height="550"
@@ -73,74 +57,78 @@
         style="width: 100%;"
       >
         <el-table-column
-          label="Fecha Registro"
+          label="Estado"
           width="150px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.Usuario_OTs[0].FechaRegistro | moment("YY-MM-DD hh:mm:ss") }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Fecha Inicio"
-          width="150px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.Usuario_OTs[0].FechaInicio | moment("YY-MM-DD hh:mm:ss") }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Estado Tarea"
-          width="120px"
-          align="center"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ tasksStatus[row.Usuario_OTs[0].EstadoTarea] }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Asignado a"
-          min-width="200px"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.usuarioByIduserasignado.Nombres }}  &nbsp;</span>
-            <span>{{ row.usuarioByIduserasignado.Apellidos }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Tipo Servicio"
-          min-width="200px"
-          prop="TipoServicio.TpServicio"
-          align="center"
+          prop="Estado"
         />
         <el-table-column
-          label="Nro Orden"
-          width="140px"
-          prop="OrdenTrabajo_Cabecera.NroOrden"
-          align="center"
+          label="Nro Ficha"
+          width="100px"
+          prop="Ficha"
         />
         <el-table-column
-          label="F. Est. Finalización"
+          label="Norte"
+          width="150px"
+          prop="Norte"
+        />
+        <el-table-column
+          label="Sur"
+          width="150px"
+          align="center"
+          prop="Sur"
+        />
+        <el-table-column
+          label="Este"
+          min-width="150px"
+          prop="Este"
+        />
+        <el-table-column
+          label="Oeste"
+          min-width="150px"
+          align="center"
+          prop="Oeste"
+        />
+        <el-table-column
+          label="Frente"
+          width="150px"
+          align="center"
+          prop="Frente"
+        />
+        <el-table-column
+          label="Atras"
+          width="150px"
+          align="center"
+          prop="Atras"
+        />
+        <el-table-column
+          label="Derecha"
+          min-width="150px"
+          prop="Derecho"
+        />
+        <el-table-column
+          label="Izquierda"
+          min-width="150px"
+          prop="Izquierdo"
+        />
+        <el-table-column
+          label="Lindero"
+          min-width="700px"
+          prop="Lindero"
+        />
+        <el-table-column
+          label="Usuario"
+          min-width="150px"
+          prop="Usuario"
+        />
+        <el-table-column
+          label="Fecha"
           width="150px"
           align="center"
         >
           <template slot-scope="{ row }">
-            <span>{{ row.FechaEstimadaEntrega | moment("YY-MM-DD hh:mm:ss") }}</span>
+            <span>{{ row.Fecha | moment("YY-MM-DD hh:mm:ss") }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          label="Fecha Finalización"
-          width="150px"
-          align="center"
-        >
-          <template slot-scope="{ row }">
-            <span>{{ row.Usuario_OTs[0].FechaFinalizacion | moment("YY-MM-DD hh:mm:ss") }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="Observaciones"
-          min-width="300px"
-          prop="Observacion"
-        />
       </el-table>
       <pagination v-show="listQuery.total>0" :total="listQuery.total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleFilter" />
     </div>
@@ -150,9 +138,8 @@
 <script>
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
-import { orderDetailsByDateStart } from '../querys/listOfQuerys'
+import { linderos_vacios } from '../querys/listOfQuerys'
 import Pagination from '@/components/Pagination'
-import moment from 'moment'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -203,26 +190,37 @@ export default {
         { label: 'Pendiente', value: '6' },
         { label: 'Anulado', value: '7' }
       ],
-      selectedDep: '',
+      selectedEstate: '',
       selected: [],
       tableKey: 0,
-      rep_orderDetails: [],
+      normal: [],
+      download: [],
       listLoading: false,
       total: 0,
       listQuery: {
-        user: '',
         total: 0,
         page: 1,
         limit: 10,
-        offset: 0,
+        offset: 10,
         title: '',
         type: undefined,
         sort: '',
+        nroficha: '',
+        norte: '',
+        sur: '',
+        este: '',
+        oeste: '',
+        frente: '',
+        atras: '',
+        derecho: '',
+        izquierdo: '',
+        lindero: '',
+        usuario: '',
         fechas: null
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
-      DepOptions: [{ label: 'Certificados', value: 'Certificados' }, { label: 'Inscripciones', value: 'Inscripciones' }],
+      DepOptions: [{ label: 'CORRECTO', value: 'CORRECTO' }, { label: 'INCORRECTO', value: 'INCORRECTO' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
@@ -265,36 +263,45 @@ export default {
     exportEXCEL() {
       this.downloadLoading = true
       this.$apollo.query({
-        query: orderDetailsByDateStart,
+        query: linderos_vacios,
         variables: {
-          fechaInicio: this.listQuery.fechas[0],
-          fechaFin: this.listQuery.fechas[1],
-          limit: this.listQuery.total,
-          offset: 0,
-          status: this.selected,
-          departamento: this.selectedDep[0],
-          usuario: '%' + this.listQuery.user + '%'
+            fechaInicio: this.listQuery.fechas[0],
+            fechaFin: this.listQuery.fechas[1],
+            offset: 0,
+            limit: this.listQuery.total,
+            nombre: '%' + this.listQuery.usuario + '%'
         },
         error(error) {
           this.error = JSON.stringify(error.message)
         }
       }).then(data => {
-        var count = 0
-        var rows = data.data.OrdenTrabajo_Detalle.map(det => {
-          var aux = {
-            Nro: count++,
-            fRegistro: moment(det.Usuario_OTs[0].FechaRegistro).format('YYYY-MM-DD hh:mm:ss'),
-            Etarea: this.tasksStatus[det.Usuario_OTs[0].EstadoTarea],
-            Asignado: `${det.usuarioByIduserasignado.Nombres} ${det.usuarioByIduserasignado.Apellidos}`,
-            tpTramite: det.TipoTramite.DscaTipoTramite,
-            NroOrden: det.OrdenTrabajo_Cabecera.NroOrden,
-            FEfin: det.FechaEstimadaEntrega,
-            Observacion: det.Observacion
-          }
-          return aux
-        })
-        this.handleDownload(rows)
-      })
+                 data.data.linderos_vacios.forEach(value => {
+                    var sum = value.IdNorte + value.IdSur + value.IdEste + value.IdOeste + value.Frente + value.Atras + value.Derecho + value.Izquierdo
+                    var data = {
+                        Ficha: value.NroFicha,
+                        Norte: value.IdNorte === '1' ? 'vacio' : value.IdNorte,
+                        Sur: value.IdSur === '1' ? 'vacio' : value.IdSur,
+                        Este: value.IdEste === '1' ? 'vacio' : value.IdEste,
+                        Oeste: value.IdOeste === '1' ? 'vacio' : value.IdOeste,
+                        Frente: value.Frente === '1' ? 'vacio' : value.Frente,
+                        Atras: value.Atras === '1' ? 'vacio' : value.Atras,
+                        Derecho: value.Derecho === '1' ? 'vacio' : value.Derecho,
+                        Izquierdo: value.Izquierdo === '1' ? 'vacio' : value.Izquierdo,
+                        Lindero: value.Lindero,
+                        Usuario: value.Usuario,
+                        Fecha: value.fecha,
+                        Estado: sum > 4 ? 'INCORRECTO' : 'CORRECTO'
+                    }
+                    if (this.selectedEstate === '') {
+                         this.download.push(data)
+                    } else if (this.selectedEstate === data.Estado) {
+                        this.download.push(data)
+                    }
+                })
+                    this.listLoading = false
+                    this.listQuery.total = data.data.linderos_vacios_aggregate.aggregate.count
+                    this.handleDownload(this.download)
+            })
       this.downloadLoading = false
     },
     handleFilter() {
@@ -304,25 +311,48 @@ export default {
         }
         this.listLoading = true
         this.listQuery.offset = (this.listQuery.page - 1) * this.listQuery.limit
-        this.$apollo.query({
-          query: orderDetailsByDateStart,
-          variables: {
-            fechaInicio: this.listQuery.fechas[0],
-            fechaFin: this.listQuery.fechas[1],
-            limit: this.listQuery.limit,
-            offset: this.listQuery.offset,
-            status: this.selected,
-            departamento: this.selectedDep[0],
-            usuario: '%' + this.listQuery.user + '%'
-          },
-          error(error) {
-            this.error = JSON.stringify(error.message)
-          }
-        }).then(data => {
-          this.rep_orderDetails = data.data.OrdenTrabajo_Detalle
-          this.listQuery.total = data.data.OrdenTrabajo_Detalle_aggregate.aggregate.count
-          this.listLoading = false
-        })
+        if (this.listQuery.fechas.length > 0) {
+            this.normal = []
+            this.$apollo.query({
+            query: linderos_vacios,
+            variables: {
+                fechaInicio: this.listQuery.fechas[0],
+                fechaFin: this.listQuery.fechas[1],
+                offset: this.listQuery.offset,
+                limit: this.listQuery.limit,
+                nombre: '%' + this.listQuery.usuario + '%'
+            },
+            error(error) {
+                this.error = JSON.stringify(error.message)
+            }
+            }).then(data => {
+                 data.data.linderos_vacios.forEach(value => {
+                    var sum = value.IdNorte + value.IdSur + value.IdEste + value.IdOeste + value.Frente + value.Atras + value.Derecho + value.Izquierdo
+                    var data = {
+                        Ficha: value.NroFicha,
+                        Norte: value.IdNorte === '1' ? 'vacio' : value.IdNorte,
+                        Sur: value.IdSur === '1' ? 'vacio' : value.IdSur,
+                        Este: value.IdEste === '1' ? 'vacio' : value.IdEste,
+                        Oeste: value.IdOeste === '1' ? 'vacio' : value.IdOeste,
+                        Frente: value.Frente === '1' ? 'vacio' : value.Frente,
+                        Atras: value.Atras === '1' ? 'vacio' : value.Atras,
+                        Derecho: value.Derecho === '1' ? 'vacio' : value.Derecho,
+                        Izquierdo: value.Izquierdo === '1' ? 'vacio' : value.Izquierdo,
+                        Lindero: value.Lindero,
+                        Usuario: value.Usuario,
+                        Fecha: value.fecha,
+                        Estado: sum > 4 ? 'INCORRECTO' : 'CORRECTO'
+                    }
+                    if (this.selectedEstate === '') {
+                         this.normal.push(data)
+                    } else if (this.selectedEstate === data.Estado) {
+                        this.normal.push(data)
+                    }
+                })
+                    this.listLoading = false
+                    this.listQuery.total = data.data.linderos_vacios_aggregate.aggregate.count
+            })
+        }
       }
     },
     handleModifyStatus(row, status) {
@@ -386,8 +416,8 @@ export default {
     handleDownload(rows) {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Nro de trámite', 'Fecha Registro', 'Estado Tarea', 'Asiganado a', 'Tipo Tramite', 'Nro Orden', 'Fecha E. Fin', 'Observaciones']
-        const filterVal = ['Nro', 'fRegistro', 'Etarea', 'Asignado', 'tpTramite', 'NroOrden', 'FEfin', 'Observacion']
+        const tHeader = ['Nro de ficha', 'Norte', 'Sur', 'Este', 'Oeste', 'Frente', 'Atras', 'Izquierdo', 'Derecho', 'Lindero', 'Usuario', 'Fecha']
+        const filterVal = ['NroFicha', 'Norte', 'Sur', 'Este', 'Oeste', 'Frente', 'Atras', 'Izquierdo', 'Derecho', 'Lindero', 'Usuario', 'Fecha']
         const data = this.formatJson(filterVal, rows)
         excel.export_json_to_excel({
           header: tHeader,

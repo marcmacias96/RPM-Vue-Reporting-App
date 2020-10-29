@@ -105,11 +105,11 @@ export default {
         result({ data }) {
           var sumatoria = [
             {
-              name: 'Pendientes',
+              name: 'No Iniciado',
               value: 0
             },
             {
-              name: 'Completados',
+              name: 'En Proceso',
               value: 0
             },
             {
@@ -117,18 +117,24 @@ export default {
               value: 0
             },
             {
-              name: 'No Iniciado',
+              name: 'Completado',
+              value: 0
+            },
+            {
+              name: 'Pendiente',
               value: 0
             }
           ]
+          console.log(data.Usuario)
           data.Usuario.forEach(usu => {
-            sumatoria[0].value += usu.pendientes.aggregate.count
-            sumatoria[1].value += usu.completado.aggregate.count
+            sumatoria[0].value += usu.noIniciado.aggregate.count
+            sumatoria[1].value += usu.enProceso.aggregate.count
             sumatoria[2].value += usu.porFirmar.aggregate.count
-            sumatoria[3].value += usu.noIniciada.aggregate.count
+            sumatoria[3].value += usu.completado.aggregate.count
+            sumatoria[4].value += usu.pendiente.aggregate.count
           })
           this.chartData.data = sumatoria
-          this.chartData.labels = ['Pendientes', 'Completados', 'Por Firmar', 'No Iniciado']
+          this.chartData.labels = ['No Iniciado', 'En Proceso', 'Por Firmar', 'Completado', 'Pendiente']
         }
       }
     }

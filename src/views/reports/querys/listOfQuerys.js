@@ -423,12 +423,15 @@ var userRankingTasks = gql `
   `
 var orderDetailsByDateEnd = gql `
 query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {
-  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
+  OrdenTrabajo_Detalle(where: {usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea : {_in : $status}}}, limit: $limit, offset: $offset) {
     TipoServicio {
       TpServicio
     }
     TipoTramite {
       DscaTipoTramite
+    }
+    Usuario_OTs {
+      EstadoTarea
     }
     StatusOT
     CreadoEn
@@ -452,6 +455,8 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
     Usuario_OTs {
       FechaRegistro
       FechaFinalizacion
+      EstadoTarea
+      FechaInicio
     }
     OrdenTrabajo_Cabecera {
       ExcentoCobro
@@ -469,7 +474,7 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
     }
     Observacion
   }
-  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+  OrdenTrabajo_Detalle_aggregate(where: {usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaFinalizacion: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea : {_in : $status}}})  {
     aggregate {
       count
     }
@@ -478,12 +483,15 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
   `
 var orderDetailsByDateStart = gql `
 query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: Int!, $status: [Int!], $departamento: String, $usuario: String!) {
-  OrdenTrabajo_Detalle(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}, limit: $limit, offset: $offset) {
+  OrdenTrabajo_Detalle(where: {usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea : {_in : $status}}}, limit: $limit, offset: $offset) {
     TipoServicio {
       TpServicio
     }
     TipoTramite {
       DscaTipoTramite
+    }
+    Usuario_OTs {
+      EstadoTarea
     }
     StatusOT
     CreadoEn
@@ -505,9 +513,10 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
       Apellidos
     }
     Usuario_OTs {
-      FechaRegistro
       FechaInicio
+      FechaRegistro
       FechaFinalizacion
+      EstadoTarea
     }
     OrdenTrabajo_Cabecera {
       ExcentoCobro
@@ -525,7 +534,7 @@ query ($fechaInicio: timestamp!, $fechaFin: timestamp!, $limit: Int!, $offset: I
     }
     Observacion
   }
-  OrdenTrabajo_Detalle_aggregate(where: {StatusOT: {_in: $status}, usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}}}) {
+  OrdenTrabajo_Detalle_aggregate(where: {usuarioByIduserasignado: {_or: [{Nombres: {_ilike: $usuario}}, {Apellidos: {_ilike: $usuario}}], Departamento: {IdDpto: {_ilike: $departamento}}}, Usuario_OTs: {FechaInicio: {_gte: $fechaInicio, _lte: $fechaFin}, EstadoTarea : {_in : $status}}})  {
     aggregate {
       count
     }
@@ -651,6 +660,30 @@ var tramitesMontoDetalles = gql`
     }
   `
 
+  var linderos_vacios = gql`
+    query ($nombre: String!, $limit: Int, $offset: Int, $fechaInicio: timestamp, $fechaFin: timestamp) {
+      linderos_vacios_aggregate(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}) {
+        aggregate {
+          count
+        }
+      }
+      linderos_vacios(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}, limit: $limit, offset: $offset) {
+        NroFicha
+        IdNorte
+        IdSur
+        IdEste
+        IdOeste
+        Frente
+        Atras
+        Derecho
+        Izquierdo
+        Lindero
+        Usuario
+        fecha
+      }
+    }
+  `
+
 export {
   tiposTramite,
   tramitesUsuario,
@@ -668,5 +701,6 @@ export {
   orderDetailsByDateStart,
   detellesExcel,
   tramitesMontoDetalles,
-  alcabalas
+  alcabalas,
+  linderos_vacios
 }

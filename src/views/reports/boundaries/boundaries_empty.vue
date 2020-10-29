@@ -24,7 +24,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-input v-model="listQuery.user" placeholder="Creado por" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.usuario" placeholder="Creado por" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button
         v-waves
         class="filter-item"
@@ -130,7 +130,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <pagination v-show="listQuery.total>0" :total="listQuery.total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="handleFilter" />
     </div>
   </div>
 </template>
@@ -139,7 +138,7 @@
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import { linderos_vacios } from '../querys/listOfQuerys'
-import Pagination from '@/components/Pagination'
+// import Pagination from '@/components/Pagination'
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -154,7 +153,7 @@ const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
 export default {
   name: 'ComplexTable',
   directives: { waves },
-  components: { Pagination },
+  // components: { Pagination },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -199,9 +198,6 @@ export default {
       total: 0,
       listQuery: {
         total: 0,
-        page: 1,
-        limit: 10,
-        offset: 10,
         title: '',
         type: undefined,
         sort: '',
@@ -267,15 +263,13 @@ export default {
         variables: {
             fechaInicio: this.listQuery.fechas[0],
             fechaFin: this.listQuery.fechas[1],
-            offset: 0,
-            limit: this.listQuery.total,
             nombre: '%' + this.listQuery.usuario + '%'
         },
         error(error) {
           this.error = JSON.stringify(error.message)
         }
       }).then(data => {
-                 data.data.linderos_vacios.forEach(value => {
+                data.data.linderos_vacios.forEach(value => {
                     var sum = value.IdNorte + value.IdSur + value.IdEste + value.IdOeste + value.Frente + value.Atras + value.Derecho + value.Izquierdo
                     var data = {
                         Ficha: value.NroFicha,
@@ -293,13 +287,13 @@ export default {
                         Estado: sum > 4 ? 'INCORRECTO' : 'CORRECTO'
                     }
                     if (this.selectedEstate === '') {
-                         this.download.push(data)
+                        this.download.push(data)
                     } else if (this.selectedEstate === data.Estado) {
                         this.download.push(data)
                     }
+                    this.total
                 })
                     this.listLoading = false
-                    this.listQuery.total = data.data.linderos_vacios_aggregate.aggregate.count
                     this.handleDownload(this.download)
             })
       this.downloadLoading = false
@@ -318,8 +312,6 @@ export default {
             variables: {
                 fechaInicio: this.listQuery.fechas[0],
                 fechaFin: this.listQuery.fechas[1],
-                offset: this.listQuery.offset,
-                limit: this.listQuery.limit,
                 nombre: '%' + this.listQuery.usuario + '%'
             },
             error(error) {
@@ -350,7 +342,6 @@ export default {
                     }
                 })
                     this.listLoading = false
-                    this.listQuery.total = data.data.linderos_vacios_aggregate.aggregate.count
             })
         }
       }
@@ -417,7 +408,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['Nro de ficha', 'Norte', 'Sur', 'Este', 'Oeste', 'Frente', 'Atras', 'Izquierdo', 'Derecho', 'Lindero', 'Usuario', 'Fecha']
-        const filterVal = ['NroFicha', 'Norte', 'Sur', 'Este', 'Oeste', 'Frente', 'Atras', 'Izquierdo', 'Derecho', 'Lindero', 'Usuario', 'Fecha']
+        const filterVal = ['Ficha', 'Norte', 'Sur', 'Este', 'Oeste', 'Frente', 'Atras', 'Izquierdo', 'Derecho', 'Lindero', 'Usuario', 'Fecha']
         const data = this.formatJson(filterVal, rows)
         excel.export_json_to_excel({
           header: tHeader,

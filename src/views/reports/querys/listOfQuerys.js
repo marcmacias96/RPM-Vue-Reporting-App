@@ -661,13 +661,13 @@ var tramitesMontoDetalles = gql`
   `
 
   var linderos_vacios = gql`
-    query ($nombre: String!, $limit: Int, $offset: Int, $fechaInicio: timestamp, $fechaFin: timestamp) {
+    query ($nombre: String!, $fechaInicio: timestamp, $fechaFin: timestamp) {
       linderos_vacios_aggregate(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}) {
         aggregate {
           count
         }
       }
-      linderos_vacios(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}, limit: $limit, offset: $offset) {
+      linderos_vacios(where: {fecha: {_gte: $fechaInicio, _lte: $fechaFin}, Usuario: {_ilike: $nombre}}) {
         NroFicha
         IdNorte
         IdSur
